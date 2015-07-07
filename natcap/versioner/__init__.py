@@ -1,4 +1,6 @@
+import os
 import pkg_resources
+import traceback
 
 def get_version(package, root='.'):
     """
@@ -18,6 +20,26 @@ def get_version(package, root='.'):
     except pkg_resources.DistributionNotFound:
         pass
 
+    return vcs_version(root)
+
+def vcs_version(root='.'):
+    """
+    Get the version string from your VCS.
+
+    Parameters:
+        root='.' (string): The root directory to search for vcs information.
+            This should be the path to the repository root.
+    """
     import versioning
-    return versioning.get_pep440(branch=False)
+    cwd = os.getcwd()
+    try:
+        os.chdir(root)
+        version = versioning.get_pep440(branch=False)
+    except:
+        traceback.print_exc()
+        version = 'UNKNOWN'
+    finally:
+        os.chdir(cwd)
+
+    return version
 
