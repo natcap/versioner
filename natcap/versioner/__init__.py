@@ -1,2 +1,10 @@
+import pkg_resources
 import versioning
-__version__ = versioning.get_pep440(branch=False)
+
+def get_version(root='.'):
+    version = versioning.get_pep440(branch=False)
+    if version:
+        return version
+    return pkg_resources.require('natcap.versioner')[0].version
+
+
