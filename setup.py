@@ -29,7 +29,7 @@ class CustomSdist(_sdist):
         version = self.distribution.version
         if not version:
             from natcap.versioner import get_version
-            version = get_version()
+            version = get_version('natcap.versioner')
 
         temp_setupfile = os.path.join(base_dir, 'setup.py')
         with open(temp_setupfile, 'a') as setup_fp:
