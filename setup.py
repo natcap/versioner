@@ -24,10 +24,13 @@ def load_version():
     If we're in an installed version of invest use the __version__ attribute.
     """
     try:
-        import natcap.versioner as versioner
+        import natcap
+        import natcap.versioner
+        from natcap.versioner import versioning
     except ImportError:
-        versioner = imp.load_source('natcap.versioner', 'natcap/versioner/__init__.py')
-    return versioner.__version__
+        natcap = imp.load_source('natcap', 'natcap/__init__.py')
+        versioning = imp.load_source('natcap.versioner.versioning', 'natcap/versioner/versioning.py')
+    return versioning.get_pep440(branch=False)
 
 setup(
     name='natcap.versioner',
@@ -37,6 +40,9 @@ setup(
     maintainer_email='jdouglass@stanford.edu',
     url='https://bitbucket.org/natcap/versioner',
     namespace_packages=['natcap'],
+    install_requires=[
+        'pyyaml'
+    ],
     packages=[
         'natcap',
         'natcap.versioner',
