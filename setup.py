@@ -19,7 +19,7 @@ setup(
         'natcap',
         'natcap.versioner',
     ],
-    version='0.1.0',
+    version='0.1.1',
     license=LICENSE,
     zip_safe=True,
     keywords='hg mercurial git versioning natcap',
