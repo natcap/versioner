@@ -10,7 +10,7 @@ setup(
     long_description=readme + '\n\n' + history,
     maintainer='James Douglass',
     maintainer_email='jdouglass@stanford.edu',
-    url='https://bitbucket.org/natcap/versioner',
+    url='https://bitbucket.org/jdouglass/versioner',
     namespace_packages=['natcap'],
     install_requires=[
         'pyyaml'
