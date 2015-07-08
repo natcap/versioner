@@ -134,11 +134,23 @@ def _increment_tag(version_string):
         tag[-1] = '0'
         return '.'.join(tag) + '.dev' + split_string[1]
 
-def get_pep440(branch=True):
+def get_pep440(branch=True, method='post'):
     """
     Build a PEP440-compliant version.  Returns a string.
+
+    Parameters:
+        branch=True (boolean): Whether to include the name of the current branch in
+            the version string
+        method='post' (string): One of ['post', 'pre'].  If 'post', the version string
+            will br formatted as a post-release.  If 'pre', the version string will
+            be formetted as a pre-release.
+
+    Returns:
+        The string version number.
     """
-    template_string = "%(latesttag)s.dev%(tagdist)s+n%(node)s"
+    assert method in ['pre', 'post'], 'Versioning method %s not valid' % method
+
+    template_string = "%(latesttag)s.%(method)s%(tagdist)s+n%(node)s"
     if branch is True:
         template_string += "-%(branch)s"
 
@@ -148,17 +160,24 @@ def get_pep440(branch=True):
             'latesttag': get_archive_attr('latesttag'),
             'node': get_archive_attr('node')[:8],
             'branch': get_archive_attr('branch'),
+            'method': method,
         }
-        return _increment_tag(template_string % data)
+        version_string = template_string % data
     else:
         data = {
             'tagdist': '{latesttagdistance}',
             'latesttag': '{latesttag}',
             'node': '{node|short}',
             'branch': '{branch}',
+            'method': method,
         }
         cmd = HG_CALL + ' --template "%s"' % template_string % data
-        return _increment_tag(run_command(cmd))
+        version_string = run_command(cmd)
+
+    if method == 'pre':
+        return _increment_tag(version_string)
+    return version_string
+
 
 def get_build_id():
     """Call mercurial with a template argument to get the build ID.  Returns a

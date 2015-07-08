@@ -7,7 +7,7 @@ Natural Capital Project (http://naturalcapitalproject.org).
 Versioning Scheme
 =================
 
-How a tag is formatted: ::
+How a version string is formatted: ::
 
     If we are at a tag:
         version = {tag}
