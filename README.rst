@@ -82,6 +82,7 @@ fetched from ``git`` or ``hg`` and recorded in the package metadata.
         name='example_project',
         ...
         version=natcap.versioner.vcs_version()
+        natcap_version='example_project/version.py',
     )
 
 
