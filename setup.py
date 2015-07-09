@@ -19,8 +19,12 @@ setup(
         'natcap',
         'natcap.versioner',
     ],
-    version='0.1.2',
+    version='0.1.3',
     license=LICENSE,
+    entry_points="""
+        [distutils.setup_keywords]
+        natcap_version = natcap.versioner.utils:distutils_keyword
+    """,
     zip_safe=True,
     keywords='hg mercurial git versioning natcap',
     classifiers=[

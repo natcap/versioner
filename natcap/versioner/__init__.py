@@ -2,7 +2,7 @@ import os
 import pkg_resources
 import traceback
 
-def get_version(package, root='.'):
+def get_version(package, root='.', ver_module=None):
     """
     Get the version string for the target package.
 
@@ -11,10 +11,22 @@ def get_version(package, root='.'):
     Parameters:
         package (string): The package name to check for (e.g. 'natcap.invest')
         root='.' (string): The path to the directory to check for a DVCS repository.
+        ver_module=None (string): The versioning module name, relative to `package`.
 
     Returns:
         A DVCS-aware versioning string.
     """
+
+    if ver_module == None:
+        ver_module = 'version.py'
+
+    try:
+        full_module = '.'.join([package, ver_module])
+        module = __import__(full_module)
+        return module.version
+    except ImportError:
+        pass
+
     try:
         return pkg_resources.require(package)[0].version
     except pkg_resources.DistributionNotFound:
