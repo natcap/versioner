@@ -1,5 +1,9 @@
 .. :changelog:
 
+0.1.4
+=====
+* Attempting to get the utils module to import correctly.
+
 0.1.3
 =====
 * Allowing version string to be written to a package file.
