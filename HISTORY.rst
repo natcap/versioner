@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.2.0
+=====
+* API Change: version is now parsed from setup.py using ``natcap.versioner.parse_version()``.
+* Allowing the version to be correctly fetched from PKG-INFO from egg/distribution metadata even when the package has not already been built.
+
 0.1.3
 =====
 * Allowing version string to be written to a package file.
