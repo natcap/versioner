@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.2.1
+=====
+* Version files are now properly imported.  This fixes an issue with users unable to fetch
+  version strings from within frozen environments that are outside of a source tree.
+
 0.2.0
 =====
 * API Change: version is now parsed from setup.py using ``natcap.versioner.parse_version()``.

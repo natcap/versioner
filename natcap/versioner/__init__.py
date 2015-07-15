@@ -1,6 +1,7 @@
 import os
 import pkg_resources
 import traceback
+import importlib
 
 def get_version(package, root='.', ver_module=None):
     """
@@ -18,20 +19,23 @@ def get_version(package, root='.', ver_module=None):
     """
 
     if ver_module == None:
-        ver_module = 'version.py'
+        ver_module = 'version'
 
+    # Prefer to import the version file
     try:
         full_module = '.'.join([package, ver_module])
-        module = __import__(full_module)
+        module = importlib.import_module(full_module)
         return module.version
     except ImportError:
         pass
 
+    # Next, try to get the info from installed package metadata
     try:
         return pkg_resources.require(package)[0].version
     except pkg_resources.DistributionNotFound:
         pass
 
+    # Lastly, get the version from source control
     return vcs_version(root)
 
 def parse_version(root='.'):

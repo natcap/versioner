@@ -14,6 +14,9 @@ How a version string is formatted: ::
     else:
         version = {tag}.post{N}+r{nodeid|short}
 
+    If there are no tags:
+        {tag} = 'null'
+
 
 Examples:
 
