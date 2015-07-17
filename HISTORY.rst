@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.2.2
+=====
+* Fixes an issue where a development version is returned when the user is at a tag.  The 
+  version is now correctly reported as just the tag.
+
 0.2.1
 =====
 * Version files are now properly imported.  This fixes an issue with users unable to fetch
