@@ -162,17 +162,24 @@ def get_pep440(branch=True, method='post'):
             'branch': get_archive_attr('branch'),
             'method': method,
         }
-        version_string = template_string % data
     else:
+        def template_cmd(logtemplate):
+            cmd = HG_CALL + ' --template="%s"' % logtemplate
+            return run_command(cmd)
+
         data = {
-            'tagdist': '{latesttagdistance}',
-            'latesttag': '{latesttag}',
-            'node': '{node|short}',
-            'branch': '{branch}',
+            'tagdist': template_cmd('{latesttagdistance}'),
+            'latesttag': template_cmd('{latesttag}'),
+            'node': template_cmd('{node|short}'),
+            'branch': template_cmd('{branch}'),
             'method': method,
         }
-        cmd = HG_CALL + ' --template "%s"' % template_string % data
-        version_string = run_command(cmd)
+
+    version_string = template_string % data
+
+    # If we're at a tag, return the tag only
+    if int(data['tagdist']) == 0:
+        return "{latesttag}".format(**data)
 
     if method == 'pre':
         return _increment_tag(version_string)

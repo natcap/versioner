@@ -14,6 +14,9 @@ How a version string is formatted: ::
     else:
         version = {tag}.post{N}+r{nodeid|short}
 
+    If there are no tags:
+        {tag} = 'null'
+
 
 Examples:
 
@@ -81,7 +84,7 @@ fetched from ``git`` or ``hg`` and recorded in the package metadata.
     setup(
         name='example_project',
         ...
-        version=natcap.versioner.vcs_version()
+        version=natcap.versioner.parse_version()
         natcap_version='example_project/version.py',
     )
 
