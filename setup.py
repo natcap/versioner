@@ -25,7 +25,7 @@ setup(
         [distutils.setup_keywords]
         natcap_version = natcap.versioner.utils:distutils_keyword
     """,
-    zip_safe=True,
+    zip_safe=False,
     keywords='hg mercurial git versioning natcap',
     classifiers=[
         'Intended Audience :: Developers',

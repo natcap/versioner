@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.2.3
+=====
+* Turning setuptools zip_safe flag to False.  When this and natcap.invest have their zip_safe
+  flags all as False, the packages happily install side-by-side as individual eggs.
+
 0.2.2
 =====
 * Fixes an issue where a development version is returned when the user is at a tag.  The 
