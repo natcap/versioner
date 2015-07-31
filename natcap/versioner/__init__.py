@@ -4,6 +4,8 @@ import pkg_resources
 import traceback
 import importlib
 
+from natcap.versioner import VersionNotFound
+
 
 class VersionNotFound(RuntimeError):
     """
@@ -98,23 +100,38 @@ def parse_version(root='.'):
     return vcs_version(root)
 
 
-def vcs_version(root='.'):
+ERROR_RAISE = 'raise exception on error'
+ERROR_RETURN = 'return a string error message on error'
+
+
+def vcs_version(root='.', on_error=ERROR_RAISE):
     """
     Get the version string from your VCS.
 
     Parameters:
         root='.' (string): The root directory to search for vcs information.
             This should be the path to the repository root.
+        on_error=ERROR_RAISE (string): What to do when an exception is
+            encountered in the SCM version parsing.  One of ERROR_RAISE,
+            ERROR_RETURN.  If ERROR_RAISE, VersionNotFound will be raised.
+            If ERROR_RETURN, a string message will be returned instead.
     """
     import versioning
     cwd = os.getcwd()
+    error = False
     try:
         os.chdir(root)
         version = versioning.get_pep440(branch=False)
     except:
         traceback.print_exc()
         version = 'UNKNOWN'
+        error = True
     finally:
         os.chdir(cwd)
+
+    if error is True and on_error == ERROR_RAISE:
+        root_path = os.path.abspath(root)
+        raise VersionNotFound((
+            'A version could not be loaded from scm in %s' % root_path))
 
     return version

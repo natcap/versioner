@@ -6,6 +6,8 @@
   input.  Defaults to only allowing fallback in non-frozen environments (e.g. a
   source tree).  ``natcap.versioner.VersionNotFound`` will be raised if the version
   string cannot be loaded normally or SCM is disallowed.
+* If a version string cannot be parsed by vcs_version(),
+  ``natcap.versioner.VersionNotFound`` will optionally be raised.
 
 0.2.3
 =====
