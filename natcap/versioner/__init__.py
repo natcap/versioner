@@ -4,8 +4,6 @@ import pkg_resources
 import traceback
 import importlib
 
-from natcap.versioner import VersionNotFound
-
 
 class VersionNotFound(RuntimeError):
     """
