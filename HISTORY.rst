@@ -1,5 +1,12 @@
 .. :changelog:
 
+0.2.4
+=====
+* Allowing get_version() to allow fallback to SCM only when allowed by user
+  input.  Defaults to only allowing fallback in non-frozen environments (e.g. a
+  source tree).  ``natcap.versioner.VersionNotFound`` will be raised if the version
+  string cannot be loaded normally or SCM is disallowed.
+
 0.2.3
 =====
 * Turning setuptools zip_safe flag to False.  When this and natcap.invest have their zip_safe
