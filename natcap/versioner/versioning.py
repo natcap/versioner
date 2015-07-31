@@ -27,6 +27,7 @@ def build_data():
     }
     return data
 
+
 def write_build_info(source_file_uri):
     """Write the build information to the file specified as `source_file_uri`.
     """
@@ -39,7 +40,8 @@ def write_build_info(source_file_uri):
             temp_file.write("__version__ = '%s'\n" % get_pep440(branch=False))
         elif line == "build_data = None\n":
             build_information = build_data()
-            temp_file.write("build_data = %s\n" % str(build_information.keys()))
+            temp_file.write(
+                "build_data = %s\n" % str(build_information.keys()))
             for key, value in sorted(build_information.iteritems()):
                 temp_file.write("%s = '%s'\n" % (key, value))
         else:
@@ -50,6 +52,7 @@ def write_build_info(source_file_uri):
     source_file.close()
     os.remove(source_file_uri)
     shutil.copyfile(temp_file_uri, source_file_uri)
+
 
 def _temporary_filename():
     """Returns a temporary filename using mkstemp. The file is deleted
@@ -66,17 +69,19 @@ def _temporary_filename():
             in atexit"""
         try:
             os.remove(path)
-        except OSError as exception:
-            #This happens if the file didn't exist, which is okay because maybe
-            #we deleted it in a method
+        except OSError:
+            # This happens if the file didn't exist, which is okay because
+            # maybe we deleted it in a function
             pass
 
     atexit.register(remove_file, path)
     return path
 
+
 def get_py_arch():
     """This function gets the python architecture string.  Returns a string."""
     return platform.architecture()[0]
+
 
 def get_release_version():
     """This function gets the release version.  Returns either the latest tag
@@ -85,27 +90,31 @@ def get_release_version():
         return get_latest_tag()
     return None
 
+
 def version():
     """This function gets the module's version string.  This will be either the
     dev build ID (if we're on a dev build) or the current tag if we're on a
     known tag.  Either way, the return type is a string."""
     release_version = get_release_version()
-    if release_version == None:
+    if release_version is None:
         return build_dev_id(get_build_id())
     return release_version
 
+
 def build_dev_id(build_id=None):
     """This function builds the dev version string.  Returns a string."""
-    if build_id == None:
+    if build_id is None:
         build_id = get_build_id()
     return 'dev%s' % (build_id)
+
 
 def get_architecture_string():
     """Return a string representing the operating system and the python
     architecture on which this python installation is operating (which may be
     different than the native processor architecture.."""
     return '%s%s' % (platform.system().lower(),
-        platform.architecture()[0][0:2])
+                     platform.architecture()[0][0:2])
+
 
 def get_version_from_hg():
     """Get the version from mercurial.  If we're on a tag, return that.
@@ -115,6 +124,7 @@ def get_version_from_hg():
         return get_latest_tag()
     else:
         return build_dev_id()
+
 
 def _increment_tag(version_string):
     split_string = version_string.split('.dev')
@@ -134,16 +144,17 @@ def _increment_tag(version_string):
         tag[-1] = '0'
         return '.'.join(tag) + '.dev' + split_string[1]
 
+
 def get_pep440(branch=True, method='post'):
     """
     Build a PEP440-compliant version.  Returns a string.
 
     Parameters:
-        branch=True (boolean): Whether to include the name of the current branch in
-            the version string
-        method='post' (string): One of ['post', 'pre'].  If 'post', the version string
-            will br formatted as a post-release.  If 'pre', the version string will
-            be formetted as a pre-release.
+        branch=True (boolean): Whether to include the name of the current
+            branch in the version string
+        method='post' (string): One of ['post', 'pre'].  If 'post', the
+            version string will br formatted as a post-release.  If 'pre',
+            the version string will be formetted as a pre-release.
 
     Returns:
         The string version number.
@@ -194,8 +205,10 @@ def get_build_id():
         latesttag = get_archive_attr('latesttag')
         node = get_archive_attr('node')[:8]
         return "%s:%s [%s]" % (tagdist, latesttag, node)
-    cmd = HG_CALL + ' --template "{latesttagdistance}:{latesttag} [{node|short}]"'
+    cmd = HG_CALL + (' --template "{latesttagdistance}:{latesttag} '
+                     '[{node|short}]"')
     return run_command(cmd)
+
 
 def get_tag_distance():
     """Call mercurial with a template argument to get the distance to the latest
@@ -205,6 +218,7 @@ def get_tag_distance():
     cmd = HG_CALL + ' --template "{latesttagdistance}"'
     return int(run_command(cmd))
 
+
 def get_latest_tag():
     """Call mercurial with a template argument to get the latest tag.  Returns a
     python bytestring."""
@@ -212,6 +226,7 @@ def get_latest_tag():
         return get_archive_attr('latesttag')
     cmd = HG_CALL + ' --template "{latesttag}"'
     return run_command(cmd)
+
 
 def get_branch():
     """
@@ -222,6 +237,7 @@ def get_branch():
     cmd = HG_CALL + ' --template "{branch}"'
     return run_command(cmd)
 
+
 def run_command(cmd):
     """Run a subprocess.Popen command.  This function is intended for internal
     use only and ensures a certain degree of uniformity across the various
@@ -231,13 +247,15 @@ def run_command(cmd):
 
     Returns a python bytestring of the output of the input command."""
     p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return p.stdout.read()
+
 
 def is_archive():
     if os.path.exists('.hg_archival.txt'):
         return True
     return False
+
 
 def get_archive_attr(attr):
     """
@@ -257,5 +275,3 @@ def get_archive_attr(attr):
         KeyError when `attr` is not in .hg_archival.txt
     """
     return yaml.safe_load(open('.hg_archival.txt'))[attr]
-
-
