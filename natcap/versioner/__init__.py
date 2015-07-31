@@ -1,9 +1,23 @@
 import os
+import sys
 import pkg_resources
 import traceback
 import importlib
 
-def get_version(package, root='.', ver_module=None):
+
+class VersionNotFound(RuntimeError):
+    """
+    A custom exception for when the version is not found.
+    """
+    pass
+
+
+SCM_ALLOW = 'allow scm fallback'
+SCM_DISALLOW = 'disallow scm fallback'
+SCM_NOTFROZEN = 'allow scm in non-frozen enviroments (disallow when frozen)'
+
+
+def get_version(package, root='.', ver_module=None, allow_scm=SCM_NOTFROZEN):
     """
     Get the version string for the target package.
 
@@ -13,17 +27,19 @@ def get_version(package, root='.', ver_module=None):
         package (string): The package name to check for (e.g. 'natcap.invest')
         root='.' (string): The path to the directory to check for a DVCS repository.
         ver_module=None (string): The versioning module name, relative to `package`.
+        allow_scm=SCM_NOTFROZEN (string): Whether to allow fallback to SCM.  Must
+            be one of SCM_ALLOW, SCM_DISALLOW, or SCM_NOTFROZEN.
 
     Returns:
         A DVCS-aware versioning string.
     """
 
-    if ver_module == None:
+    if ver_module is None:
         ver_module = 'version'
 
     # Prefer to import the version file
+    full_module = '.'.join([package, ver_module])
     try:
-        full_module = '.'.join([package, ver_module])
         module = importlib.import_module(full_module)
         return module.version
     except ImportError:
@@ -35,8 +51,24 @@ def get_version(package, root='.', ver_module=None):
     except pkg_resources.DistributionNotFound:
         pass
 
+    if allow_scm == SCM_DISALLOW:
+        raise VersionNotFound((
+            'Version module %s not found and SCM fallback '
+            'disallowed') % full_module)
+
+    # If we're in a frozen environment and the user is not allowing the use of
+    # SCM in a frozen environment, raise VersionNotFrozen.
+    is_frozen = hasattr(sys, '_MEIPASS') or hasattr(sys, 'frozen')
+    if is_frozen and allow_scm != SCM_NOTFROZEN:
+        # we're in a pyinstaller or py2app/py2exe binary, so the target
+        # package's version module was not included as a hiddenimport.
+        raise VersionNotFound(
+            ('The version module %s was not found in the frozen distribution. '
+             'Perhaps it needs to be added as a hiddenimport?') % full_module)
+
     # Lastly, get the version from source control
     return vcs_version(root)
+
 
 def parse_version(root='.'):
     """
@@ -63,6 +95,7 @@ def parse_version(root='.'):
 
     return vcs_version(root)
 
+
 def vcs_version(root='.'):
     """
     Get the version string from your VCS.
@@ -83,4 +116,3 @@ def vcs_version(root='.'):
         os.chdir(cwd)
 
     return version
-
