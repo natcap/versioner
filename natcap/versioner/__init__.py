@@ -25,10 +25,12 @@ def get_version(package, root='.', ver_module=None, allow_scm=SCM_NOTFROZEN):
 
     Parameters:
         package (string): The package name to check for (e.g. 'natcap.invest')
-        root='.' (string): The path to the directory to check for a DVCS repository.
-        ver_module=None (string): The versioning module name, relative to `package`.
-        allow_scm=SCM_NOTFROZEN (string): Whether to allow fallback to SCM.  Must
-            be one of SCM_ALLOW, SCM_DISALLOW, or SCM_NOTFROZEN.
+        root='.' (string): The path to the directory to check for a DVCS
+            repository.
+        ver_module=None (string): The versioning module name, relative to
+            `package`.
+        allow_scm=SCM_NOTFROZEN (string): Whether to allow fallback to SCM.
+            Must be one of SCM_ALLOW, SCM_DISALLOW, or SCM_NOTFROZEN.
 
     Returns:
         A DVCS-aware versioning string.
