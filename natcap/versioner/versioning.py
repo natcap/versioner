@@ -69,22 +69,68 @@ class VCSQuerier(object):
 
     def build_dev_id(self, build_id=None):
         """This function builds the dev version string.  Returns a string."""
-        if build_id == None:
+        if build_id is None:
             build_id = self.build_id
         return 'dev%s' % (build_id)
+
+
+class HgArchive(VCSQuerier):
+    shortnode_len = 12
+
+    @property
+    def build_id(self):
+        attrs = _get_archive_attrs(self._repo_path)
+        return '{latesttagdistance}:{latesttag} [{node}]'.format(
+            latesttagdistance=attrs['latesttagdistance'],
+            latesttag=attrs['latesttag'],
+            node=attrs['node'][:self.shortnode_len],
+        )
+
+    @property
+    def tag_distance(self):
+        try:
+            return _get_archive_attrs(self._repo_path)['latesttagdistance']
+        except KeyError:
+            # This happens when we are at a tag.
+            return 0
+
+    @property
+    def latest_tag(self):
+        attrs = _get_archive_attrs(self._repo_path)
+        try:
+            return unicode(attrs['latesttag'])
+        except KeyError:
+            # This happens when we are at a tag.
+            return unicode(attrs['tag'])
+
+    @property
+    def branch(self):
+        return _get_archive_attrs(self._repo_path)['branch']
+
+    @property
+    def node(self):
+        return _get_archive_attrs(self._repo_path)['node'][:self.shortnode_len]
+
+    @property
+    def is_archive(self):
+        if os.path.exists(os.path.join(self._repo_path, '.hg_archival.txt')):
+            return True
+        return False
 
 
 class HgRepo(VCSQuerier):
     def _log_template(self, template_string):
         hg_call = 'hg log -R %s -r . --config ui.report_untrusted=False'
-        cmd = (hg_call + ' --template="%s"') % (self._repo_path, template_string)
+        cmd = (hg_call + ' --template="%s"') % (self._repo_path,
+                                                template_string)
         return self._run_command(cmd)
 
     @property
     def build_id(self):
         """Call mercurial with a template argument to get the build ID.  Returns a
         python bytestring."""
-        return self._log_template('{latesttagdistance}:{latesttag} [{node|short}]')
+        return self._log_template('{latesttagdistance}:{latesttag} '
+                                  '[{node|short}]')
 
     @property
     def tag_distance(self):
@@ -333,7 +379,7 @@ def get_pep440(branch=True, method='post'):
     return version_string
 
 
-def _get_archive_attr(attr):
+def _get_archive_attrs(archive_path):
     """
     If we're in an hg archive, there will be a file '.hg_archival.txt' in the
     repo root.  If this is the case, we can fetch relevant build information
@@ -342,12 +388,14 @@ def _get_archive_attr(attr):
     Parameters:
         attr (string): The archive attr to fetch.  One of
         "repo"|"node"|"branch"|"latesttag"|"latesttagdistance"|"changessincelatesttag"
+        archive_path (string): The path to the mercurial archive.
+            The .hg_archival.txt file must exist right inside this directory.
 
     Returns:
-        The value of the attribute in the .hg_archival file.
+        A dict of the attributes within the .hg_archival file.
 
     Raises:
         IOError when the .hg_archival.txt file cannot be found.
         KeyError when `attr` is not in .hg_archival.txt
     """
-    return yaml.safe_load(open('.hg_archival.txt'))[attr]
+    return yaml.safe_load(open(os.path.join(archive_path, '.hg_archival.txt')))
