@@ -4,6 +4,7 @@ import platform
 import collections
 import shutil
 import os
+import re
 import tempfile
 import atexit
 import yaml
@@ -72,6 +73,32 @@ class VCSQuerier(object):
         if build_id is None:
             build_id = self.build_id
         return 'dev%s' % (build_id)
+
+    def pep440(self, branch=True, method='post'):
+        assert method in ['pre', 'post'], 'Versioning method %s not valid' % method
+
+        # If we're at a tag, return the tag only.
+        if self.tag_distance == 0:
+            return self.latest_tag
+
+        template_string = "%(latesttag)s.%(method)s%(tagdist)s+n%(node)s"
+        if branch is True:
+            template_string += "-%(branch)s"
+
+        latest_tag = self.latest_tag
+        if method == 'pre':
+            latest_tag = _increment_tag(latest_tag)
+
+        data = {
+            'tagdist': self.tag_distance,
+            'latesttag': latest_tag,
+            'node': self.node,
+            'branch': self.branch,
+            'method': method,
+        }
+        version_string = template_string % data
+
+        return version_string
 
 
 class _HgArchive(VCSQuerier):
@@ -248,75 +275,12 @@ def get_architecture_string():
 
 
 def _increment_tag(version_string):
-    split_string = version_string.split('.dev')
+    assert len(re.findall('([0-9].?)+', version_string)) >= 1, 'version string must be a release'
 
-    if len(split_string) == 1:
-        # When the version string is just the tag, we return the tag
-        return version_string
-    else:
-        # increment the minor version number and not the update num.
-        tag = split_string[0].split('.')
-
-        # If there's never been a tag, assume 0.0.0 was the tag at rev 0.
-        if len(tag) == 1 and tag[0] in ['null', 'None']:
-            tag = ['0', '0', '0']
-
-        tag[-2] = str(int(tag[-2]) + 1)
-        tag[-1] = '0'
-        return '.'.join(tag) + '.dev' + split_string[1]
-
-
-def get_pep440(branch=True, method='post'):
-    """
-    Build a PEP440-compliant version.  Returns a string.
-
-    Parameters:
-        branch=True (boolean): Whether to include the name of the current
-            branch in the version string
-        method='post' (string): One of ['post', 'pre'].  If 'post', the
-            version string will br formatted as a post-release.  If 'pre',
-            the version string will be formetted as a pre-release.
-
-    Returns:
-        The string version number.
-    """
-    assert method in ['pre', 'post'], 'Versioning method %s not valid' % method
-
-    template_string = "%(latesttag)s.%(method)s%(tagdist)s+n%(node)s"
-    if branch is True:
-        template_string += "-%(branch)s"
-
-    if os.path.exists('.hg'):
-        repo = HgRepo()
-    else:
-        repo = GitRepo()
-
-    if repo.is_archive:
-        data = {
-            'tagdist': _get_archive_attr('latesttagdistance'),
-            'latesttag': _get_archive_attr('latesttag'),
-            'node': _get_archive_attr('node')[:8],
-            'branch': _get_archive_attr('branch'),
-            'method': method,
-        }
-    else:
-        data = {
-            'tagdist': repo.tag_distance,
-            'latesttag': repo.latest_tag,
-            'node': repo.node,
-            'branch': repo.branch,
-            'method': method,
-        }
-
-    version_string = template_string % data
-
-    # If we're at a tag, return the tag only
-    if int(data['tagdist']) == 0:
-        return "{latesttag}".format(**data)
-
-    if method == 'pre':
-        return _increment_tag(version_string)
-    return version_string
+    # increment the minor version number and not the update num.
+    tag = [int(s) for s in version_string.split('.')]
+    tag[-1] += 1
+    return '.'.join([str(i) for i in tag])
 
 
 def _get_archive_attrs(archive_path):
