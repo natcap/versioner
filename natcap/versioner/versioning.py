@@ -234,58 +234,9 @@ class GitRepo(VCSQuerier):
         return False
 
 
-def _temporary_filename():
-    """Returns a temporary filename using mkstemp. The file is deleted
-        on exit using the atexit register.  This function was migrated from
-        the invest-3 raster_utils file, rev 11354:1029bd49a77a.
-
-        returns a unique temporary filename"""
-
-    file_handle, path = tempfile.mkstemp()
-    os.close(file_handle)
-
-    def remove_file(path):
-        """Function to remove a file and handle exceptions to register
-            in atexit"""
-        try:
-            os.remove(path)
-        except OSError:
-            # This happens if the file didn't exist, which is okay because
-            # maybe we deleted it in a function
-            pass
-
-    atexit.register(remove_file, path)
-    return path
-
-
 def get_py_arch():
     """This function gets the python architecture string.  Returns a string."""
     return platform.architecture()[0]
-
-
-def get_release_version():
-    """This function gets the release version.  Returns either the latest tag
-    (if we're on a release tag) or None, if we're on a dev changeset."""
-    if get_tag_distance() == 0:
-        return get_latest_tag()
-    return None
-
-
-def version():
-    """This function gets the module's version string.  This will be either the
-    dev build ID (if we're on a dev build) or the current tag if we're on a
-    known tag.  Either way, the return type is a string."""
-    release_version = get_release_version()
-    if release_version is None:
-        return build_dev_id(get_build_id())
-    return release_version
-
-
-def build_dev_id(build_id=None):
-    """This function builds the dev version string.  Returns a string."""
-    if build_id is None:
-        build_id = get_build_id()
-    return 'dev%s' % (build_id)
 
 
 def get_architecture_string():
@@ -294,16 +245,6 @@ def get_architecture_string():
     different than the native processor architecture.."""
     return '%s%s' % (platform.system().lower(),
                      platform.architecture()[0][0:2])
-
-
-def get_version_from_hg():
-    """Get the version from mercurial.  If we're on a tag, return that.
-    Otherwise, build the dev id and return that instead."""
-    # TODO: Test that Hg exists before getting this information.
-    if get_tag_distance() == 0:
-        return get_latest_tag()
-    else:
-        return build_dev_id()
 
 
 def _increment_tag(version_string):
