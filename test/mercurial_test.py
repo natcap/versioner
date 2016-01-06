@@ -3,6 +3,17 @@ import shutil
 import subprocess
 import tempfile
 import os
+import re
+
+
+def call_hg(command):
+    # The subprocess docs warn that using subprocess.PIPE may result in
+    # deadlock when used with subprocess.call, but it seems to work ok
+    # so far!
+    subprocess.call(
+        command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, shell=True)
+
 
 class MercurialTest(unittest.TestCase):
     def setUp(self):
@@ -17,14 +28,6 @@ class MercurialTest(unittest.TestCase):
         Returns:
             None"""
         from natcap.versioner import versioning
-
-        def call_hg(command):
-            # The subprocess docs warn that using subprocess.PIPE may result in
-            # deadlock when used with subprocess.call, but it seems to work ok
-            # so far!
-            subprocess.call(
-                command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, shell=True)
 
         call_hg('hg init {tempdir}'.format(
             tempdir=self.repo_uri))
@@ -67,6 +70,35 @@ class MercurialTest(unittest.TestCase):
     def test_is_archive(self):
         repo = self._set_up_sample_repo()
         self.assertEqual(repo.is_archive, False)
+
+    def test_build_id(self):
+        repo = self._set_up_sample_repo()
+        build_id = repo.build_id
+        matches = re.findall('1:0\.1 \[[0-9a-f]{8,12}\]', build_id)
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(build_id, matches[0])
+
+    def test_release_version_not_at_tag(self):
+        repo = self._set_up_sample_repo()
+        self.assertIs(repo.release_version, None)
+
+    def test_release_version_at_tag(self):
+        repo = self._set_up_sample_repo()
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        self.assertEqual(repo.release_version, '0.1')
+
+    def test_dev_id_default(self):
+        repo = self._set_up_sample_repo()
+        dev_id = repo.build_dev_id()
+        matches = re.findall('dev1:0\.1 \[[0-9a-f]{8,12}\]', dev_id)
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(dev_id, matches[0])
+
+    def test_dev_id_provided(self):
+        from natcap.versioner import versioning
+        repo = versioning.HgRepo('.')
+        self.assertEqual(repo.build_dev_id('foo'), 'devfoo')
+
 
 
 
