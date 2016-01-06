@@ -8,13 +8,15 @@ import tempfile
 import atexit
 import yaml
 
-HG_CALL = 'hg log -r . --config ui.report_untrusted=False'
 
 LOGGER = logging.getLogger('natcap.invest.versioning')
 LOGGER.setLevel(logging.ERROR)
 
 
 class VCSQuerier(object):
+    def __init__(self, repo_path):
+        self._repo_path = repo_path
+
     def _run_command(self, cmd):
         """Run a subprocess.Popen command.  This function is intended for internal
         use only and ensures a certain degree of uniformity across the various
@@ -73,10 +75,9 @@ class VCSQuerier(object):
 
 
 class HgRepo(VCSQuerier):
-    HG_CALL = 'hg log -r . --config ui.report_untrusted=False'
-
-    def _log_template(template_string):
-        cmd = self.HG_CALL + ' "%s"' % template_string
+    def _log_template(self, template_string):
+        hg_call = 'hg log -R %s -r . --config ui.report_untrusted=False'
+        cmd = (hg_call + ' --template="%s"') % (self._repo_path, template_string)
         return self._run_command(cmd)
 
     @property
