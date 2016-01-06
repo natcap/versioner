@@ -260,19 +260,6 @@ class GitRepo(VCSQuerier):
         return False
 
 
-def get_py_arch():
-    """This function gets the python architecture string.  Returns a string."""
-    return platform.architecture()[0]
-
-
-def get_architecture_string():
-    """Return a string representing the operating system and the python
-    architecture on which this python installation is operating (which may be
-    different than the native processor architecture.."""
-    return '%s%s' % (platform.system().lower(),
-                     platform.architecture()[0][0:2])
-
-
 def _increment_tag(version_string):
     assert len(re.findall('([0-9].?)+', version_string)) >= 1, 'version string must be a release'
 
