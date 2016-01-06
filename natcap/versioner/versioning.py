@@ -17,7 +17,7 @@ class VCSQuerier(object):
     def __init__(self, repo_path):
         self._repo_path = repo_path
 
-    def _run_command(self, cmd):
+    def _run_command(self, cmd, cwd=None):
         """Run a subprocess.Popen command.  This function is intended for internal
         use only and ensures a certain degree of uniformity across the various
         subprocess calls made in this module.
@@ -26,7 +26,7 @@ class VCSQuerier(object):
 
         Returns a python bytestring of the output of the input command."""
         p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
         return p.stdout.read().replace('\n', '')
 
     @property
@@ -157,11 +157,14 @@ class HgRepo(VCSQuerier):
 
 
 class GitRepo(VCSQuerier):
-    def __init__(self):
-        VCSQuerier.__init__(self)
+    def __init__(self, repo_uri):
+        VCSQuerier.__init__(self, repo_uri)
         self._tag_distance = None
         self._latest_tag = None
         self._commit_hash = None
+
+    def _run_command(self, cmd):
+        return VCSQuerier._run_command(self, cmd, self._repo_path)
 
     @property
     def branch(self):
@@ -169,7 +172,7 @@ class GitRepo(VCSQuerier):
         current_branches = self._run_command(branch_cmd)
         for line in current_branches.split('\n'):
             if line.startswith('* '):
-                return line.strip()[2:]
+                return line.replace('* ', '').strip()
         raise IOError('Could not detect current branch')
 
     def _describe_current_rev(self):
