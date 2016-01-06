@@ -3,6 +3,9 @@ import sys
 import pkg_resources
 import traceback
 import importlib
+import logging
+
+LOGGER = logging.getLogger('natcap.versioner')
 
 
 class VersionNotFound(RuntimeError):
@@ -124,8 +127,8 @@ def vcs_version(root='.', on_error=ERROR_RAISE):
                 break
         repo = scm_class(root)
         version = repo.pep440(branch=False)
-    except:
-        traceback.print_exc()
+    except Exception as error:
+        LOGGER.exception(error)
         version = 'UNKNOWN'
         error = True
 
