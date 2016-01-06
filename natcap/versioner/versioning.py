@@ -14,44 +14,178 @@ LOGGER = logging.getLogger('natcap.invest.versioning')
 LOGGER.setLevel(logging.ERROR)
 
 
-def build_data():
-    """Returns a dictionary of relevant build data."""
-    data = {
-        'release': get_latest_tag(),
-        'build_id': get_build_id(),
-        'py_arch': get_py_arch(),
-        'version_str': version(),
-        'branch': get_branch(),
-        'pep440': get_pep440(branch=False),
-        'pep440branch': get_pep440(branch=True),
-    }
-    return data
+class VCSQuerier(object):
+    def _run_command(self, cmd):
+        """Run a subprocess.Popen command.  This function is intended for internal
+        use only and ensures a certain degree of uniformity across the various
+        subprocess calls made in this module.
+
+        cmd - a python string to be executed in the shell.
+
+        Returns a python bytestring of the output of the input command."""
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        return p.stdout.read().replace('\n', '')
+
+    @property
+    def is_archive(self):
+        raise NotImplementedError
+
+    @property
+    def tag_distance(self):
+        raise NotImplementedError
+
+    @property
+    def build_id(self):
+        raise NotImplementedError
+
+    @property
+    def latest_tag(self):
+        raise NotImplementedError
+
+    @property
+    def branch(self):
+        raise NotImplementedError
+
+    @property
+    def release_version(self):
+        """This function gets the release version.  Returns either the latest tag
+        (if we're on a release tag) or None, if we're on a dev changeset."""
+        if self.tag_distance == 0:
+            return self.latest_tag
+        return None
+
+    @property
+    def version(self):
+        """This function gets the module's version string.  This will be either the
+        dev build ID (if we're on a dev build) or the current tag if we're on a
+        known tag.  Either way, the return type is a string."""
+        release_version = self.release_version
+        if release_version == None:
+            return self.build_dev_id(self.build_id)
+        return release_version
+
+    def build_dev_id(self, build_id=None):
+        """This function builds the dev version string.  Returns a string."""
+        if build_id == None:
+            build_id = self.build_id
+        return 'dev%s' % (build_id)
 
 
-def write_build_info(source_file_uri):
-    """Write the build information to the file specified as `source_file_uri`.
-    """
-    temp_file_uri = _temporary_filename()
-    temp_file = open(temp_file_uri, 'w+')
+class HgRepo(VCSQuerier):
+    HG_CALL = 'hg log -r . --config ui.report_untrusted=False'
 
-    source_file = open(os.path.abspath(source_file_uri))
-    for line in source_file:
-        if line == "__version__ = 'dev'\n":
-            temp_file.write("__version__ = '%s'\n" % get_pep440(branch=False))
-        elif line == "build_data = None\n":
-            build_information = build_data()
-            temp_file.write(
-                "build_data = %s\n" % str(build_information.keys()))
-            for key, value in sorted(build_information.iteritems()):
-                temp_file.write("%s = '%s'\n" % (key, value))
+    def _log_template(template_string):
+        cmd = self.HG_CALL + ' "%s"' % template_string
+        return self._run_command(cmd)
+
+    @property
+    def build_id(self):
+        """Call mercurial with a template argument to get the build ID.  Returns a
+        python bytestring."""
+        return self._log_template('{latesttagdistance}:{latesttag} [{node|short}]')
+
+    @property
+    def tag_distance(self):
+        """Call mercurial with a template argument to get the distance to the latest
+        tag.  Returns an int."""
+        return int(self._log_template('{latesttagdistance}'))
+
+    @property
+    def latest_tag(self):
+        """Call mercurial with a template argument to get the latest tag.  Returns a
+        python bytestring."""
+        return self._log_template('{latesttag}')
+
+    @property
+    def branch(self):
+        """Get the current branch from hg."""
+        return self._log_template('{branch}')
+
+    @property
+    def node(self):
+        return self._log_template('{node|short}')
+
+    @property
+    def is_archive(self):
+        if os.path.exists('.hg_archival.txt'):
+            return True
+        return False
+
+
+class GitRepo(VCSQuerier):
+    def __init__(self):
+        VCSQuerier.__init__(self)
+        self._tag_distance = None
+        self._latest_tag = None
+        self._commit_hash = None
+
+    @property
+    def branch(self):
+        branch_cmd = 'git branch'
+        current_branches = self._run_command(branch_cmd)
+        for line in current_branches.split('\n'):
+            if line.startswith('* '):
+                return line.strip()[2:]
+        raise IOError('Could not detect current branch')
+
+    def _describe_current_rev(self):
+        self._tag_distance = None
+        self._latest_tag = None
+        self._commit_hash = None
+
+        data = self._run_command('git describe --tags')
+        current_branch = self.branch
+
+        # assume that the tag has no dashes in it
+        if data == 'heads/%s' % current_branch:
+            # when there are no tags
+            self._latest_tag = 'null'
+
+            num_commits_cmd = 'git rev-list %s --count' % current_branch
+            self._tag_distance = self._run_command(num_commits_cmd)
+
+            commit_hash_cmd = 'git log -1 --pretty="format:%h"'
+            self._commit_hash = self._run_command(commit_hash_cmd)
+        elif '-' not in data:
+            # then we're at a tag
+            self._latest_tag = str(data)
+            self._tag_distance = 0
+
+            commit_hash_cmd = 'git log -1 --pretty="format:%h"'
+            self._commit_hash = self._run_command(commit_hash_cmd)
         else:
-            temp_file.write(line)
-    temp_file.flush()
-    temp_file.close()
+            # we're not at a tag, so data has the format:
+            # data = tagname-tagdistange-commit_hash
+            tagname, tag_dist, _commit_hash = data.split('-')
+            self._tag_distance = int(tag_dist)
+            self._latest_tag = tagname
+            self._commit_hash = self.node
 
-    source_file.close()
-    os.remove(source_file_uri)
-    shutil.copyfile(temp_file_uri, source_file_uri)
+    @property
+    def build_id(self):
+        self._describe_current_rev()
+        return "%s:%s [%s]" % (self._tag_distance, self._latest_tag,
+            self._commit_hash)
+
+    @property
+    def tag_distance(self):
+        self._describe_current_rev()
+        return self._tag_distance
+
+    @property
+    def latest_tag(self):
+        self._describe_current_rev()
+        return self._latest_tag
+
+    @property
+    def node(self):
+        return self._run_command('git rev-parse HEAD').strip()[:8]
+
+    @property
+    def is_archive(self):
+        # Archives are a mercurial feature.
+        return False
 
 
 def _temporary_filename():
@@ -165,24 +299,25 @@ def get_pep440(branch=True, method='post'):
     if branch is True:
         template_string += "-%(branch)s"
 
-    if is_archive():
+    if os.path.exists('.hg'):
+        repo = HgRepo()
+    else:
+        repo = GitRepo()
+
+    if repo.is_archive:
         data = {
-            'tagdist': get_archive_attr('latesttagdistance'),
-            'latesttag': get_archive_attr('latesttag'),
-            'node': get_archive_attr('node')[:8],
-            'branch': get_archive_attr('branch'),
+            'tagdist': _get_archive_attr('latesttagdistance'),
+            'latesttag': _get_archive_attr('latesttag'),
+            'node': _get_archive_attr('node')[:8],
+            'branch': _get_archive_attr('branch'),
             'method': method,
         }
     else:
-        def template_cmd(logtemplate):
-            cmd = HG_CALL + ' --template="%s"' % logtemplate
-            return run_command(cmd)
-
         data = {
-            'tagdist': template_cmd('{latesttagdistance}'),
-            'latesttag': template_cmd('{latesttag}'),
-            'node': template_cmd('{node|short}'),
-            'branch': template_cmd('{branch}'),
+            'tagdist': repo.tag_distance,
+            'latesttag': repo.latest_tag,
+            'node': repo.node,
+            'branch': repo.branch,
             'method': method,
         }
 
@@ -197,67 +332,7 @@ def get_pep440(branch=True, method='post'):
     return version_string
 
 
-def get_build_id():
-    """Call mercurial with a template argument to get the build ID.  Returns a
-    python bytestring."""
-    if is_archive():
-        tagdist = get_archive_attr('latesttagdistance')
-        latesttag = get_archive_attr('latesttag')
-        node = get_archive_attr('node')[:8]
-        return "%s:%s [%s]" % (tagdist, latesttag, node)
-    cmd = HG_CALL + (' --template "{latesttagdistance}:{latesttag} '
-                     '[{node|short}]"')
-    return run_command(cmd)
-
-
-def get_tag_distance():
-    """Call mercurial with a template argument to get the distance to the latest
-    tag.  Returns an int."""
-    if is_archive():
-        return get_archive_attr('latesttagdistance')
-    cmd = HG_CALL + ' --template "{latesttagdistance}"'
-    return int(run_command(cmd))
-
-
-def get_latest_tag():
-    """Call mercurial with a template argument to get the latest tag.  Returns a
-    python bytestring."""
-    if is_archive():
-        return get_archive_attr('latesttag')
-    cmd = HG_CALL + ' --template "{latesttag}"'
-    return run_command(cmd)
-
-
-def get_branch():
-    """
-    Get the branch from hg.
-    """
-    if is_archive():
-        return get_archive_attr('branch')
-    cmd = HG_CALL + ' --template "{branch}"'
-    return run_command(cmd)
-
-
-def run_command(cmd):
-    """Run a subprocess.Popen command.  This function is intended for internal
-    use only and ensures a certain degree of uniformity across the various
-    subprocess calls made in this module.
-
-    cmd - a python string to be executed in the shell.
-
-    Returns a python bytestring of the output of the input command."""
-    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return p.stdout.read()
-
-
-def is_archive():
-    if os.path.exists('.hg_archival.txt'):
-        return True
-    return False
-
-
-def get_archive_attr(attr):
+def _get_archive_attr(attr):
     """
     If we're in an hg archive, there will be a file '.hg_archival.txt' in the
     repo root.  If this is the case, we can fetch relevant build information
