@@ -100,6 +100,18 @@ class MercurialTest(unittest.TestCase):
         repo = versioning.HgRepo('.')
         self.assertEqual(repo.build_dev_id('foo'), 'devfoo')
 
+    def test_release_version_at_tag(self):
+        repo = self._set_up_sample_repo()
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        self.assertEqual(repo.version, '0.1')
+
+    def test_release_version_not_at_tag(self):
+        repo = self._set_up_sample_repo()
+        dev_id = repo.version
+        matches = re.findall('dev1:0\.1 \[[0-9a-f]{8,12}\]', dev_id)
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(dev_id, matches[0])
+
 
 class MercurialArchiveTest(MercurialTest):
     def _set_up_sample_repo(self, archive_rev=None):
@@ -115,7 +127,7 @@ class MercurialArchiveTest(MercurialTest):
         archive.close()
 
         archive_path = os.path.join(self.repo_uri, 'archive')
-        repo = versioning.HgArchive(archive_path)
+        repo = versioning._HgArchive(archive_path)
         return repo
 
     def test_is_archive(self):

@@ -74,8 +74,9 @@ class VCSQuerier(object):
         return 'dev%s' % (build_id)
 
 
-class HgArchive(VCSQuerier):
+class _HgArchive(VCSQuerier):
     shortnode_len = 12
+    is_archive = True
 
     @property
     def build_id(self):
@@ -111,14 +112,15 @@ class HgArchive(VCSQuerier):
     def node(self):
         return _get_archive_attrs(self._repo_path)['node'][:self.shortnode_len]
 
-    @property
-    def is_archive(self):
-        if os.path.exists(os.path.join(self._repo_path, '.hg_archival.txt')):
-            return True
-        return False
-
 
 class HgRepo(VCSQuerier):
+    is_archive = False
+
+    def __init__(self, repo_path):
+        if os.path.exists(os.path.join(repo_path, '.hg_archival.txt')):
+            return _HgArchive(repo_path)
+        VCSQuerier.__init__(self, repo_path)
+
     def _log_template(self, template_string):
         hg_call = 'hg log -R %s -r . --config ui.report_untrusted=False'
         cmd = (hg_call + ' --template="%s"') % (self._repo_path,
@@ -152,12 +154,6 @@ class HgRepo(VCSQuerier):
     @property
     def node(self):
         return self._log_template('{node|short}')
-
-    @property
-    def is_archive(self):
-        if os.path.exists('.hg_archival.txt'):
-            return True
-        return False
 
 
 class GitRepo(VCSQuerier):
