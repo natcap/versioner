@@ -149,6 +149,13 @@ class MercurialTest(unittest.TestCase):
         self.assertEqual(len(matches), 1)
         self.assertEqual(matches[0], pep440_version)
 
+    def test_vcs_version(self):
+        import natcap.versioner
+        repo = self._set_up_sample_repo()
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        version = natcap.versioner.vcs_version(self.repo_uri)
+        self.assertEqual(version, repo.pep440(branch=False))
+
 
 class MercurialArchiveTest(MercurialTest):
     def _set_up_sample_repo(self, archive_rev=None):
@@ -163,8 +170,8 @@ class MercurialArchiveTest(MercurialTest):
         archive.extractall(path=self.repo_uri)
         archive.close()
 
-        archive_path = os.path.join(self.repo_uri, 'archive')
-        repo = versioning._HgArchive(archive_path)
+        self.archive_path = os.path.join(self.repo_uri, 'archive')
+        repo = versioning.HgArchive(self.archive_path)
         return repo
 
     def test_is_archive(self):
@@ -178,3 +185,9 @@ class MercurialArchiveTest(MercurialTest):
     def test_pep440_at_tag(self):
         repo = self._set_up_sample_repo(archive_rev='0.1')
         self.assertEqual(repo.pep440(), '0.1')
+
+    def test_vcs_version(self):
+        import natcap.versioner
+        repo = self._set_up_sample_repo('0.1')
+        version = natcap.versioner.vcs_version(self.archive_path)
+        self.assertEqual(version, repo.pep440(branch=False))

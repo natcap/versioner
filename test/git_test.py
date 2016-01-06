@@ -103,3 +103,10 @@ class GitTest(unittest.TestCase):
         matches = re.findall('dev1:0\.1 \[[0-9a-f]{8,12}\]', dev_id)
         self.assertEqual(len(matches), 1)
         self.assertEqual(dev_id, matches[0])
+
+    def test_vcs_version(self):
+        import natcap.versioner
+        repo = self._set_up_sample_repo()
+        call_git('git checkout 0.1', self.repo_uri)
+        version = natcap.versioner.vcs_version(self.repo_uri)
+        self.assertEqual(version, repo.pep440(branch=False))

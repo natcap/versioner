@@ -101,9 +101,10 @@ class VCSQuerier(object):
         return version_string
 
 
-class _HgArchive(VCSQuerier):
+class HgArchive(VCSQuerier):
     shortnode_len = 12
     is_archive = True
+    repo_data_location = '.hg_archival.txt'
 
     @property
     def build_id(self):
@@ -142,11 +143,7 @@ class _HgArchive(VCSQuerier):
 
 class HgRepo(VCSQuerier):
     is_archive = False
-
-    def __init__(self, repo_path):
-        if os.path.exists(os.path.join(repo_path, '.hg_archival.txt')):
-            return _HgArchive(repo_path)
-        VCSQuerier.__init__(self, repo_path)
+    repo_data_location = '.hg'
 
     def _log_template(self, template_string):
         hg_call = 'hg log -R %s -r . --config ui.report_untrusted=False'
@@ -184,6 +181,8 @@ class HgRepo(VCSQuerier):
 
 
 class GitRepo(VCSQuerier):
+    repo_data_location = '.git'
+
     def __init__(self, repo_uri):
         VCSQuerier.__init__(self, repo_uri)
         self._tag_distance = None

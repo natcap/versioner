@@ -114,20 +114,22 @@ def vcs_version(root='.', on_error=ERROR_RAISE):
             ERROR_RETURN.  If ERROR_RAISE, VersionNotFound will be raised.
             If ERROR_RETURN, a string message will be returned instead.
     """
-    import versioning
-    cwd = os.getcwd()
+    from versioning import HgArchive, HgRepo, GitRepo
+
     error = False
     try:
-        os.chdir(root)
-        version = versioning.get_pep440(branch=False)
+        for scm_class in [HgArchive, HgRepo, GitRepo]:
+            repo_data = os.path.join(root, scm_class.repo_data_location)
+            if os.path.exists(repo_data):
+                break
+        repo = scm_class(root)
+        version = repo.pep440(branch=False)
     except:
         traceback.print_exc()
         version = 'UNKNOWN'
         error = True
-    finally:
-        os.chdir(cwd)
 
-    if error is True and on_error == ERROR_RAISE:
+    if error and on_error == ERROR_RAISE:
         root_path = os.path.abspath(root)
         raise VersionNotFound((
             'A version could not be loaded from scm in %s' % root_path))
