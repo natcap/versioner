@@ -16,6 +16,7 @@ setup(
         'pyyaml'
     ],
     packages=[
+        'natcap',
         'natcap.versioner',
     ],
     version='0.3.0',
