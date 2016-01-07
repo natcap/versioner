@@ -1,11 +1,11 @@
 import os
 import sys
 import pkg_resources
-import traceback
 import importlib
 import logging
 
 LOGGER = logging.getLogger('natcap.versioner')
+LOGGER.setLevel(logging.ERROR)
 
 
 class VersionNotFound(RuntimeError):

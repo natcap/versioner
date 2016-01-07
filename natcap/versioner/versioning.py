@@ -1,16 +1,10 @@
-import subprocess
 import logging
-import platform
-import collections
-import shutil
 import os
 import re
-import tempfile
-import atexit
+import subprocess
 import yaml
 
-
-LOGGER = logging.getLogger('natcap.invest.versioning')
+LOGGER = logging.getLogger('natcap.versioner.versioning')
 LOGGER.setLevel(logging.ERROR)
 
 
@@ -65,7 +59,7 @@ class VCSQuerier(object):
         dev build ID (if we're on a dev build) or the current tag if we're on a
         known tag.  Either way, the return type is a string."""
         release_version = self.release_version
-        if release_version == None:
+        if release_version is None:
             return self.build_dev_id(self.build_id)
         return release_version
 
@@ -76,7 +70,8 @@ class VCSQuerier(object):
         return 'dev%s' % (build_id)
 
     def pep440(self, branch=True, method='post'):
-        assert method in ['pre', 'post'], 'Versioning method %s not valid' % method
+        assert method in ['pre', 'post'], ('Versioning method %s '
+                                           'not valid') % method
 
         # If we're at a tag, return the tag only.
         if self.tag_distance == 0:
@@ -239,7 +234,7 @@ class GitRepo(VCSQuerier):
     def build_id(self):
         self._describe_current_rev()
         return "%s:%s [%s]" % (self._tag_distance, self._latest_tag,
-            self._commit_hash)
+                               self._commit_hash)
 
     @property
     def tag_distance(self):
@@ -262,7 +257,8 @@ class GitRepo(VCSQuerier):
 
 
 def _increment_tag(version_string):
-    assert len(re.findall('([0-9].?)+', version_string)) >= 1, 'version string must be a release'
+    assert len(re.findall('([0-9].?)+', version_string)) >= 1, (
+        'Version string must be a release')
 
     # increment the minor version number and not the update num.
     tag = [int(s) for s in version_string.split('.')]
