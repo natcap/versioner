@@ -27,8 +27,9 @@ class VCSQuerier(object):
 
         Returns a python bytestring of the output of the input command."""
         p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
-        return p.stdout.read().replace('\n', '')
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             cwd=cwd)
+        return p.stdout.read().strip()
 
     @property
     def is_archive(self):
