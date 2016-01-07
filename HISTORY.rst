@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.3.0
+=====
+* Adding support for git.
+* Added tests for core versioning functionality.
+
 0.2.4
 =====
 * Allowing get_version() to allow fallback to SCM only when allowed by user

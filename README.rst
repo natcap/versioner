@@ -107,3 +107,11 @@ If something doesn't work, it's probably broken!
 Please submit an issue via the issue tracker, send James an email
 or stop by if you're in the office and I'll try to fix it!
 
+Tests
+=====
+
+To run the suite of tests: ::
+
+    $ python setup.py nosetests
+
+Note that ``hg`` and ``git`` must be available as executables on the command-line.
