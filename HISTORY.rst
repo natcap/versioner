@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.3.1
+=====
+* Restoring support for installation as egg (0.3.0 lacked this).
+* Minor stylistic changes for PEP8 and PEP257
+
 0.3.0
 =====
 * Adding support for git.

@@ -19,7 +19,7 @@ setup(
         'natcap',
         'natcap.versioner',
     ],
-    version='0.3.0',
+    version='0.3.1',
     license=LICENSE,
     entry_points="""
         [distutils.setup_keywords]
