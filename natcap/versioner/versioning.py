@@ -9,25 +9,29 @@ LOGGER.setLevel(logging.ERROR)
 
 
 class VCSQuerier(object):
+    is_archive = False
+
     def __init__(self, repo_path):
         self._repo_path = repo_path
 
     def _run_command(self, cmd, cwd=None):
-        """Run a subprocess.Popen command.  This function is intended for internal
-        use only and ensures a certain degree of uniformity across the various
-        subprocess calls made in this module.
+        """Run a subprocess.Popen command.
 
-        cmd - a python string to be executed in the shell.
+        All output to stdout, stdin and stderr will be treated as stdout,
+        captured, and returned.  Commands are executed as shell commands.
 
-        Returns a python bytestring of the output of the input command."""
+        Parameters:
+            cmd (string) - a python string to be executed in the shell.
+            cwd=None (string or None) - the string path to the directory on
+                disk to use as the CWD.  If None, the current CWD will be
+                used.
+
+        Returns:
+            A python bytestring of the output of the given command."""
         p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                              cwd=cwd)
         return p.stdout.read().strip()
-
-    @property
-    def is_archive(self):
-        raise NotImplementedError
 
     @property
     def tag_distance(self):
@@ -43,6 +47,10 @@ class VCSQuerier(object):
 
     @property
     def branch(self):
+        raise NotImplementedError
+
+    @property
+    def node(self):
         raise NotImplementedError
 
     @property
