@@ -4,8 +4,7 @@ class GenericVCSTest(unittest.TestCase):
     def test_is_archive(self):
         from natcap.versioner import versioning
         repo = versioning.VCSQuerier('.')
-        with self.assertRaises(NotImplementedError):
-            repo.is_archive
+        self.assertFalse(repo.is_archive)
 
     def test_tag_distance(self):
         from natcap.versioner import versioning
