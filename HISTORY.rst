@@ -1,5 +1,11 @@
 .. :changelog:
 
+0.3.2
+=====
+* Setting setuptools ``zip_safe=True``.  After a review of the module, it
+  appears that no functionality within ``natcap.versioner`` requires access to
+  resources within the package via the filesystem.
+
 0.3.1
 =====
 * Restoring support for installation as egg (0.3.0 lacked this).
