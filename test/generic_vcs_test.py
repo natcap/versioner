@@ -42,3 +42,9 @@ class GenericVCSTest(unittest.TestCase):
         # because we told it to return via ERROR_RETURN
         natcap.versioner.vcs_version(
             '/', on_error=natcap.versioner.ERROR_RETURN)
+
+    def test_node_version_error_raise(self):
+        from natcap.versioner import versioning
+        repo = versioning.VCSQuerier('.')
+        with self.assertRaises(NotImplementedError):
+            repo.node
