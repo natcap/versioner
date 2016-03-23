@@ -1,5 +1,8 @@
 import sys
 import unittest
+import tempfile
+import shutil
+import os
 
 
 class GetVersionTest(unittest.TestCase):
@@ -107,3 +110,24 @@ class GetVersionTest(unittest.TestCase):
         finally:
             if remove_frozen:
                 del sys.frozen
+
+class PKGINFOTest(unittest.TestCase):
+    def setUp(self):
+        self.workspace = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.workspace)
+
+    def test_parse_version_exists(self):
+        import natcap.versioner
+
+        pkginfo_file = os.path.join(self.workspace, 'PKG-INFO')
+        open(pkginfo_file, 'w').write('Version: {ver}'.format(ver='0.0.1'))
+
+        version = natcap.versioner.parse_version(root=self.workspace)
+        self.assertEqual(version, '0.0.1')
+
+    def test_parse_version_noexist(self):
+        import natcap.versioner
+        with self.assertRaises(natcap.versioner.VersionNotFound):
+            natcap.versioner.parse_version(root='/')
