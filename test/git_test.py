@@ -20,7 +20,7 @@ class GitTest(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.repo_uri)
 
-    def _set_up_sample_repo(self):
+    def _set_up_sample_repo(self, tag=True):
         """Create a sample repo with four commits and a tag.
 
         Returns:
@@ -46,7 +46,8 @@ class GitTest(unittest.TestCase):
         open(filepath, 'a').write('baz\n')
         call_git('git commit -a -m "adding baz"', self.repo_uri)
 
-        call_git('git tag 0.1', self.repo_uri)
+        if tag:
+            call_git('git tag 0.1', self.repo_uri)
 
         open(filepath, 'a').write('example\n')
         call_git('git commit -a -m "adding example"', self.repo_uri)
@@ -110,3 +111,11 @@ class GitTest(unittest.TestCase):
         call_git('git checkout 0.1', self.repo_uri)
         version = natcap.versioner.vcs_version(self.repo_uri)
         self.assertEqual(version, repo.pep440(branch=False))
+
+    def test_vcs_version_no_tag(self):
+        import natcap.versioner
+        repo = self._set_up_sample_repo(tag=False)
+        version = natcap.versioner.vcs_version(self.repo_uri)
+        matches = re.findall('null\.post5\+n[0-9a-f]{8,12}', version)
+        self.assertEqual(len(matches), 1, version)
+        self.assertEqual(version, matches[0])
