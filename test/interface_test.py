@@ -92,7 +92,8 @@ class GetVersionTest(unittest.TestCase):
     def test_disallowed_scm(self):
         import natcap.versioner
         with self.assertRaises(natcap.versioner.VersionNotFound):
-            natcap.versioner.get_version('_foo', root='/')
+            natcap.versioner.get_version(
+                '_foo', root='/', allow_scm=natcap.versioner.SCM_DISALLOW)
 
     def test_pyinstaller_frozen(self):
         import natcap.versioner
