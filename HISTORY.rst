@@ -1,5 +1,12 @@
 .. :changelog:
 
+0.3.3
+=====
+* Tests now have full coverage of the package.
+* Git repositories without branches are now correctly handled.
+* Errors encountered in calls to ``hg`` and ``git`` command-line applications
+  will cause ``subprocess.CalledProcessError`` to be raised.
+
 0.3.2
 =====
 * Setting setuptools ``zip_safe=True``.  After a review of the module, it
