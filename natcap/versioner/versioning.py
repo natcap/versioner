@@ -28,10 +28,11 @@ class VCSQuerier(object):
 
         Returns:
             A python bytestring of the output of the given command."""
-        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             cwd=cwd)
-        return p.stdout.read().strip()
+        p = subprocess.check_output(
+            cmd, shell=True, stdin=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=cwd)
+        return p.strip()  # output without leading/trailing newlines
 
     @property
     def tag_distance(self):
@@ -210,11 +211,10 @@ class GitRepo(VCSQuerier):
         self._latest_tag = None
         self._commit_hash = None
 
-        data = self._run_command('git describe --tags')
         current_branch = self.branch
-
-        # assume that the tag has no dashes in it
-        if data == 'heads/%s' % current_branch:
+        try:
+            data = self._run_command('git describe --tags')
+        except subprocess.CalledProcessError:
             # when there are no tags
             self._latest_tag = 'null'
 
@@ -223,20 +223,21 @@ class GitRepo(VCSQuerier):
 
             commit_hash_cmd = 'git log -1 --pretty="format:%h"'
             self._commit_hash = self._run_command(commit_hash_cmd)
-        elif '-' not in data:
-            # then we're at a tag
-            self._latest_tag = str(data)
-            self._tag_distance = 0
-
-            commit_hash_cmd = 'git log -1 --pretty="format:%h"'
-            self._commit_hash = self._run_command(commit_hash_cmd)
         else:
-            # we're not at a tag, so data has the format:
-            # data = tagname-tagdistange-commit_hash
-            tagname, tag_dist, _commit_hash = data.split('-')
-            self._tag_distance = int(tag_dist)
-            self._latest_tag = tagname
-            self._commit_hash = self.node
+            if '-' not in data:
+                # then we're at a tag
+                self._latest_tag = str(data)
+                self._tag_distance = 0
+
+                commit_hash_cmd = 'git log -1 --pretty="format:%h"'
+                self._commit_hash = self._run_command(commit_hash_cmd)
+            else:
+                # we're not at a tag, so data has the format:
+                # data = tagname-tagdistange-commit_hash
+                tagname, tag_dist, _commit_hash = data.split('-')
+                self._tag_distance = int(tag_dist)
+                self._latest_tag = tagname
+                self._commit_hash = self.node
 
     @property
     def build_id(self):
