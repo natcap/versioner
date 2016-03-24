@@ -119,3 +119,15 @@ class GitTest(unittest.TestCase):
         matches = re.findall('null\.post5\+n[0-9a-f]{8,12}', version)
         self.assertEqual(len(matches), 1, version)
         self.assertEqual(version, matches[0])
+
+    def test_git_no_branches(self):
+        from natcap.versioner import versioning
+
+        # A newly initialized repo has no commits.  A repo with no commits has
+        # no branches.
+        call_git('git init {tempdir}'.format(
+            tempdir=self.repo_uri), self.repo_uri)
+
+        repo = versioning.GitRepo(self.repo_uri)
+        with self.assertRaises(IOError):
+            repo.branch
