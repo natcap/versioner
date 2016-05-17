@@ -5,6 +5,7 @@ import tempfile
 import unittest
 import re
 
+
 def call_git(command, repo_dir):
     # The subprocess docs warn that using subprocess.PIPE may result in
     # deadlock when used with subprocess.call, but it seems to work ok
@@ -12,6 +13,7 @@ def call_git(command, repo_dir):
     subprocess.call(
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, shell=True, cwd=repo_dir)
+
 
 class GitTest(unittest.TestCase):
     def setUp(self):
@@ -114,7 +116,7 @@ class GitTest(unittest.TestCase):
 
     def test_vcs_version_no_tag(self):
         import natcap.versioner
-        repo = self._set_up_sample_repo(tag=False)
+        self._set_up_sample_repo(tag=False)
         version = natcap.versioner.vcs_version(self.repo_uri)
         matches = re.findall('null\.post5\+n[0-9a-f]{8,12}', version)
         self.assertEqual(len(matches), 1, version)
@@ -131,3 +133,12 @@ class GitTest(unittest.TestCase):
         repo = versioning.GitRepo(self.repo_uri)
         with self.assertRaises(IOError):
             repo.branch
+
+    def test_git_vcs_version(self):
+        import natcap.versioner
+
+        self._set_up_sample_repo()
+        # sys won't have a version attached to it that natcap.versioner
+        # identifies.
+        natcap.versioner.get_version('sys', root=self.repo_uri,
+                                     allow_scm=natcap.versioner.SCM_ALLOW)

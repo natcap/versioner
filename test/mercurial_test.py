@@ -129,7 +129,8 @@ class MercurialTest(unittest.TestCase):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=True, method='post')
         print pep440_version
-        matches = re.findall('0\.1\.post1\+n[0-9a-f]{8,12}-default', pep440_version)
+        matches = re.findall('0\.1\.post1\+n[0-9a-f]{8,12}-default',
+                             pep440_version)
         self.assertEqual(len(matches), 1)
         self.assertEqual(matches[0], pep440_version)
 
@@ -145,7 +146,8 @@ class MercurialTest(unittest.TestCase):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=True, method='pre')
         print pep440_version
-        matches = re.findall('0\.2\.pre1\+n[0-9a-f]{8,12}-default', pep440_version)
+        matches = re.findall('0\.2\.pre1\+n[0-9a-f]{8,12}-default',
+                             pep440_version)
         self.assertEqual(len(matches), 1)
         self.assertEqual(matches[0], pep440_version)
 
@@ -155,6 +157,15 @@ class MercurialTest(unittest.TestCase):
         call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
         version = natcap.versioner.vcs_version(self.repo_uri)
         self.assertEqual(version, repo.pep440(branch=False))
+
+    def test_hg_get_version(self):
+        import natcap.versioner
+
+        self._set_up_sample_repo()
+        # sys won't have a version attached to it that natcap.versioner
+        # identifies.
+        natcap.versioner.get_version('sys', root=self.repo_uri,
+                                     allow_scm=natcap.versioner.SCM_ALLOW)
 
 
 class MercurialArchiveTest(MercurialTest):

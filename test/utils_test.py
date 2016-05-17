@@ -1,5 +1,6 @@
 import unittest
 
+
 class TagIncrementTest(unittest.TestCase):
     def test_three_digit_version(self):
         from natcap.versioner import versioning

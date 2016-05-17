@@ -1,5 +1,6 @@
 import unittest
 
+
 class GenericVCSTest(unittest.TestCase):
     def test_is_archive(self):
         from natcap.versioner import versioning
