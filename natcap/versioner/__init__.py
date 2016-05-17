@@ -15,6 +15,7 @@ class VersionNotFound(RuntimeError):
     pass
 
 
+__version__ = '0.4.0'
 SCM_ALLOW = 'allow scm fallback'
 SCM_DISALLOW = 'disallow scm fallback'
 SCM_NOTFROZEN = 'allow scm in non-frozen enviroments (disallow when frozen)'

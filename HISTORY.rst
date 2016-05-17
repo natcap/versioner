@@ -1,8 +1,9 @@
 .. :changelog:
 
-Unreleased Features
-===================
+0.4.0
+=====
 * Removing dependency on ``pyyaml``.
+* Adding ``__version__`` attribute to ``natcap.versioner``.
 
 0.3.3
 =====
