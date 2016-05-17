@@ -92,8 +92,10 @@ class GetVersionTest(unittest.TestCase):
     def test_disallowed_scm(self):
         import natcap.versioner
         with self.assertRaises(natcap.versioner.VersionNotFound):
+            # python sys module won't have the required version attribute,
+            # so the expected exception should be raised.
             natcap.versioner.get_version(
-                '_foo', root='/', allow_scm=natcap.versioner.SCM_DISALLOW)
+                'sys', root='/', allow_scm=natcap.versioner.SCM_DISALLOW)
 
     def test_pyinstaller_frozen(self):
         import natcap.versioner
@@ -106,11 +108,14 @@ class GetVersionTest(unittest.TestCase):
 
         try:
             with self.assertRaises(natcap.versioner.VersionNotFound):
+                # python sys module won't have the required version attribute,
+                # so the expected exception should be raised.
                 natcap.versioner.get_version(
-                    '_foo', root='/', allow_scm=natcap.versioner.SCM_ALLOW)
+                    'sys', root='/', allow_scm=natcap.versioner.SCM_ALLOW)
         finally:
             if remove_frozen:
                 del sys.frozen
+
 
 class PKGINFOTest(unittest.TestCase):
     def setUp(self):

@@ -1,5 +1,9 @@
 .. :changelog:
 
+Unreleased Features
+===================
+* Removing dependency on ``pyyaml``.
+
 0.3.3
 =====
 * Tests now have full coverage of the package.

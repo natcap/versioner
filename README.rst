@@ -55,14 +55,9 @@ Installation
 Dependencies
 ============
 
-Both these can be installed via ``pip``.
+To install dependency: ::
 
- * ``setuptools``
- * ``yaml``
-
-To install dependencies: ::
-
-     pip install setuptools pyyaml
+     pip install setuptools
 
 
 Usage In Your Project

@@ -2,7 +2,6 @@ import logging
 import os
 import re
 import subprocess
-import yaml
 
 LOGGER = logging.getLogger('natcap.versioner.versioning')
 LOGGER.setLevel(logging.ERROR)
@@ -294,4 +293,18 @@ def _get_archive_attrs(archive_path):
         IOError when the .hg_archival.txt file cannot be found.
         KeyError when `attr` is not in .hg_archival.txt
     """
-    return yaml.safe_load(open(os.path.join(archive_path, '.hg_archival.txt')))
+    archival_filepath = os.path.join(archive_path, '.hg_archival.txt')
+    attributes = {}
+    with open(archival_filepath) as archival_file:
+        for line in archival_file:
+            attr_name, value = line.strip().split(': ')
+
+            # Try to cast the attribute to an int (since it might be a
+            # revision number).  If it doesn't cast, leave it as a string.
+            try:
+                 value = int(value)
+            except ValueError:
+                pass
+            attributes[attr_name] = value
+
+    return attributes
