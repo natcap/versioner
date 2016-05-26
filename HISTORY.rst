@@ -5,6 +5,8 @@ Unreleased Changes
 * Removing ``pyyaml`` from setup.py's ``install_requires``.  This will prevent
   pyyaml from being installed, despite the fact that ``pyyaml`` is no longer
   used by ``natcap.versioner``.
+* Git, Hg, and Hg archive repositories can now be referred to by a subdirectory
+  within the repo itself.
 
 0.4.0
 =====

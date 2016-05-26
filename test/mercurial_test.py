@@ -158,6 +158,26 @@ class MercurialTest(unittest.TestCase):
         version = natcap.versioner.vcs_version(self.repo_uri)
         self.assertEqual(version, repo.pep440(branch=False))
 
+    def test_vcs_version_subdir(self):
+        import natcap.versioner
+        repo = self._set_up_sample_repo()
+
+        dir_inside_repo = os.path.join(self.repo_uri, 'foo', 'bar')
+        os.makedirs(dir_inside_repo)
+
+        version = natcap.versioner.vcs_version(dir_inside_repo)
+        self.assertEqual(version, repo.pep440(branch=False))
+
+    def test_create_repo_in_subdir(self):
+        from natcap.versioner import versioning
+        repo = self._set_up_sample_repo()
+
+        dir_inside_repo = os.path.join(self.repo_uri, 'foo', 'bar')
+        os.makedirs(dir_inside_repo)
+
+        new_repo = versioning.HgRepo(dir_inside_repo)
+        self.assertEqual(new_repo._repo_path, self.repo_uri)
+
     def test_hg_get_version(self):
         import natcap.versioner
 
