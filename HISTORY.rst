@@ -1,5 +1,11 @@
 .. :changelog:
 
+Unreleased Changes
+==================
+* Removing ``pyyaml`` from setup.py's ``install_requires``.  This will prevent
+  pyyaml from being installed, despite the fact that ``pyyaml`` is no longer
+  used by ``natcap.versioner``.
+
 0.4.0
 =====
 * Removing dependency on ``pyyaml``.

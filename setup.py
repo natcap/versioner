@@ -12,9 +12,6 @@ setup(
     maintainer_email='jdouglass@stanford.edu',
     url='https://bitbucket.org/jdouglass/versioner',
     namespace_packages=['natcap'],
-    install_requires=[
-        'pyyaml'
-    ],
     packages=[
         'natcap',
         'natcap.versioner',
