@@ -2,6 +2,9 @@
 
 Unreleased Changes
 ==================
+* Removing the need to import natcap.versioner within ``setup.py``.
+* ``natcap.versioner`` now uses its own functionality to generate its version
+  string.
 * Removing ``pyyaml`` from setup.py's ``install_requires``.  This will prevent
   pyyaml from being installed, despite the fact that ``pyyaml`` is no longer
   used by ``natcap.versioner``.

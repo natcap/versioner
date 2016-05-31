@@ -1,3 +1,4 @@
+from . import parse_version
 import os
 
 VERSION_FILE_TEMPLATE = """
@@ -22,3 +23,5 @@ def distutils_keyword(dist, keyword, value):
     with open(out_file, 'w') as version_file:
         version_file.write(
             VERSION_FILE_TEMPLATE.format(version=dist.get_version()))
+
+    dist.metadata.version = parse_version()
