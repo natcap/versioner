@@ -15,7 +15,6 @@ class VersionNotFound(RuntimeError):
     pass
 
 
-__version__ = '0.4.0'
 SCM_ALLOW = 'allow scm fallback'
 SCM_DISALLOW = 'disallow scm fallback'
 SCM_NOTFROZEN = 'allow scm in non-frozen enviroments (disallow when frozen)'
@@ -149,3 +148,6 @@ def vcs_version(root='.', on_error=ERROR_RAISE):
             'A version could not be loaded from scm in %s' % root_path))
 
     return version
+
+
+__version__ = get_version('natcap.versioner')

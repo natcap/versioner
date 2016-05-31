@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.4.2
+=====
+* Correcting an issue when using the ``natcap_version`` distutils keyword where
+  the distutils version attribute was being improperly set.
+
 0.4.1
 =====
 * Removing the need to import natcap.versioner within ``setup.py``.
