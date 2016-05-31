@@ -1,7 +1,7 @@
 .. :changelog:
 
-Unreleased Changes
-==================
+0.4.1
+=====
 * Removing the need to import natcap.versioner within ``setup.py``.
 * ``natcap.versioner`` now uses its own functionality to generate its version
   string.
