@@ -70,6 +70,7 @@ the ``natcap_version`` keyword.
         name='example_project',
         ...
         natcap_version='example_project/version.py',
+        setup_requires=['natcap.versioner>=0.4.2']
     )
 
 
