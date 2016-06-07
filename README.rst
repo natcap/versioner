@@ -106,7 +106,7 @@ Tests
 
 To run the suite of tests: ::
 
-    $ python setup.py nosetests
+    $ nosetests test/*.py
 
 Note that ``hg`` and ``git`` must be available as executables on the command-line.
 
