@@ -99,6 +99,8 @@ If something doesn't work, it's probably broken!
 Please submit an issue via the issue tracker, send James an email
 or stop by if you're in the office and I'll try to fix it!
 
+You can also file an issue in our `issue tracker <https://bitbucket.org/jdouglass/versioner/issues>`_.
+
 Tests
 =====
 
@@ -107,3 +109,8 @@ To run the suite of tests: ::
     $ python setup.py nosetests
 
 Note that ``hg`` and ``git`` must be available as executables on the command-line.
+
+Development
+===========
+
+The ``natcap.versioner`` source tree is located at https://bitbucket.org/jdouglass/versioner
