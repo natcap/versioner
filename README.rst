@@ -1,8 +1,13 @@
+=========================================
 Consistent versioning for NatCap Projects
 =========================================
 
 This package provides a consistent versioning scheme for projects of the
 Natural Capital Project (http://naturalcapitalproject.org).
+
+.. contents::
+    :local:
+
 
 Versioning Scheme
 =================
@@ -55,7 +60,8 @@ To use this project, you'll need to edit two files within your own project:
 ``setup.py`` and ``__init__.py``.
 
 
-**In your ``setup.py``**
+Usage in setup.py
+-----------------
 
 Adding these lines to your ``setup.py`` allows the DVCS information to be
 fetched from ``git`` or ``hg`` and recorded in the package metadata.
@@ -74,7 +80,8 @@ the ``natcap_version`` keyword.
     )
 
 
-**In your package's ``__init__.py``** 
+Usage in __init__.py
+--------------------
 
 Adding these lines to your package's ``__init__.py`` file will allow the package
 version to be fetched from the package metadata.
