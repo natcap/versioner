@@ -47,39 +47,28 @@ Installation
 
 **Via setup.py:** ``python setup.py install``
 
-.. note ::
-    If you install ``natcap.versioner`` via pip or via setup.py, dependencies
-    should install automatically.
-
-
-Dependencies
-============
-
-To install dependency: ::
-
-     pip install setuptools
-
 
 Usage In Your Project
 =====================
 
-To use this project, you'll need to edit two files: ``setup.py`` and ``__init__.py``.
+To use this project, you'll need to edit two files within your own project:
+``setup.py`` and ``__init__.py``.
 
 
 **In your ``setup.py``**
 
 Adding these lines to your ``setup.py`` allows the DVCS information to be
 fetched from ``git`` or ``hg`` and recorded in the package metadata.
+Additionally, the version will be recorded to the file you indicate with
+the ``natcap_version`` keyword.
 
 ::
 
     from setuptools import setup
-    import natcap.versioner
 
     setup(
         name='example_project',
         ...
-        version=natcap.versioner.parse_version()
         natcap_version='example_project/version.py',
     )
 
