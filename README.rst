@@ -3,7 +3,10 @@ Consistent versioning for NatCap Projects
 =========================================
 
 This package provides a consistent versioning scheme for projects of the
-Natural Capital Project (http://naturalcapitalproject.org).
+Natural Capital Project (http://naturalcapitalproject.org).  The versioning
+string currently provided is PEP440-compliant, and is supported for both git
+and mercurial repositories.  Mercurial source archives (created by the
+``hg archive`` command) are also supported.
 
 .. contents::
     :local:
@@ -51,6 +54,8 @@ Installation
 **Via pip:** ``pip install natcap.versioner``
 
 **Via setup.py:** ``python setup.py install``
+
+Note that ``natcap.versioner`` requires setuptools.
 
 
 Usage In Your Project
