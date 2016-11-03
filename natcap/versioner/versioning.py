@@ -1,7 +1,9 @@
+from __future__ import absolute_import
 import logging
 import os
 import re
 import subprocess
+import six
 
 LOGGER = logging.getLogger('natcap.versioner.versioning')
 LOGGER.setLevel(logging.ERROR)
@@ -154,10 +156,10 @@ class HgArchive(VCSQuerier):
     def latest_tag(self):
         attrs = _get_archive_attrs(self._repo_path)
         try:
-            return unicode(attrs['latesttag'])
+            return six.text_type(attrs['latesttag'])
         except KeyError:
             # This happens when we are at a tag.
-            return unicode(attrs['tag'])
+            return six.text_type(attrs['tag'])
 
     @property
     def branch(self):

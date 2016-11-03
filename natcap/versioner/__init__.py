@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import sys
 import pkg_resources
@@ -117,7 +118,7 @@ def vcs_version(root='.', on_error=ERROR_RAISE):
             ERROR_RETURN.  If ERROR_RAISE, VersionNotFound will be raised.
             If ERROR_RETURN, a string message will be returned instead.
     """
-    from versioning import HgArchive, HgRepo, GitRepo
+    from .versioning import HgArchive, HgRepo, GitRepo
 
     error = False
     version = None
