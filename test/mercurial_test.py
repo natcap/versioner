@@ -120,7 +120,6 @@ class MercurialTest(unittest.TestCase):
     def test_pep440_not_at_tag_no_branch_post(self):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=False, method='post')
-        print pep440_version
         matches = re.findall('0\.1\.post1\+n[0-9a-f]{8,12}', pep440_version)
         self.assertEqual(len(matches), 1)
         self.assertEqual(matches[0], pep440_version)
@@ -128,7 +127,6 @@ class MercurialTest(unittest.TestCase):
     def test_pep440_not_at_tag_with_branch_post(self):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=True, method='post')
-        print pep440_version
         matches = re.findall('0\.1\.post1\+n[0-9a-f]{8,12}-default',
                              pep440_version)
         self.assertEqual(len(matches), 1)
@@ -137,7 +135,6 @@ class MercurialTest(unittest.TestCase):
     def test_pep440_not_at_tag_no_branch_pre(self):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=False, method='pre')
-        print pep440_version
         matches = re.findall('0\.2\.pre1\+n[0-9a-f]{8,12}', pep440_version)
         self.assertEqual(len(matches), 1)
         self.assertEqual(matches[0], pep440_version)
@@ -145,7 +142,6 @@ class MercurialTest(unittest.TestCase):
     def test_pep440_not_at_tag_with_branch_pre(self):
         repo = self._set_up_sample_repo()
         pep440_version = repo.pep440(branch=True, method='pre')
-        print pep440_version
         matches = re.findall('0\.2\.pre1\+n[0-9a-f]{8,12}-default',
                              pep440_version)
         self.assertEqual(len(matches), 1)
