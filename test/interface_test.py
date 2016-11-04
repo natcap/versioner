@@ -128,7 +128,8 @@ class PKGINFOTest(unittest.TestCase):
         import natcap.versioner
 
         pkginfo_file = os.path.join(self.workspace, 'PKG-INFO')
-        open(pkginfo_file, 'w').write('Version: {ver}'.format(ver='0.0.1'))
+        with open(pkginfo_file, 'w') as pkginfo:
+            pkginfo.write('Version: {ver}'.format(ver='0.0.1'))
 
         version = natcap.versioner.parse_version(root=self.workspace)
         self.assertEqual(version, '0.0.1')

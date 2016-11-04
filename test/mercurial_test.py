@@ -48,6 +48,7 @@ class MercurialTest(unittest.TestCase):
             call_hg(('hg commit -m "adding bar" -R {0}').format(self.repo_uri))
 
             file_a.write('baz\n')
+            file_a.flush()
             call_hg(('hg commit -m "adding baz" -R {0}').format(self.repo_uri))
 
         call_hg(('hg tag 0.1 -R {tempdir}').format(tempdir=self.repo_uri))
@@ -210,6 +211,10 @@ class MercurialArchiveTest(MercurialTest):
     def test_release_version_at_tag(self):
         repo = self._set_up_sample_repo(archive_rev='0.1')
         self.assertEqual(repo.release_version, '0.1')
+
+    def test_version_at_tag(self):
+        repo = self._set_up_sample_repo(archive_rev='0.1')
+        self.assertEqual(repo.version, '0.1')
 
     def test_pep440_at_tag(self):
         repo = self._set_up_sample_repo(archive_rev='0.1')

@@ -55,7 +55,7 @@ class VCSQuerier(object):
             cmd, shell=True, stdin=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             cwd=cwd)
-        return p.strip()  # output without leading/trailing newlines
+        return p.strip().decode('utf-8')  # output without leading/trailing newlines
 
     @property
     def tag_distance(self):
