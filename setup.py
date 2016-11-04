@@ -2,7 +2,6 @@ from setuptools import setup
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
-LICENSE = open('LICENSE.txt').read()
 
 setup(
     name='natcap.versioner',
@@ -17,7 +16,7 @@ setup(
         'natcap.versioner',
     ],
     natcap_version='natcap/versioner/version.py',
-    license=LICENSE,
+    license='BSD',
     entry_points="""
         [distutils.setup_keywords]
         natcap_version = natcap.versioner.utils:distutils_keyword
@@ -27,11 +26,15 @@ setup(
     test_suite='nose.collector',
     classifiers=[
         'Intended Audience :: Developers',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Natural Language :: English',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 2 :: Only',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development :: Version Control',
+        'Topic :: Software Development :: Build Tools',
+        'License :: OSI Approved :: BSD License',
     ]
 )
