@@ -10,7 +10,7 @@ def call_git(command, repo_dir):
     # The subprocess docs warn that using subprocess.PIPE may result in
     # deadlock when used with subprocess.call, but it seems to work ok
     # so far!
-    subprocess.call(
+    subprocess.check_call(
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, shell=True, cwd=repo_dir)
 
@@ -34,29 +34,35 @@ class GitTest(unittest.TestCase):
 
         call_git('git checkout -B master', self.repo_uri)
 
+        git_commit = (
+            'git '
+            '-c user.name="Example Name" '
+            '-c user.email="name@example.com" '
+            'commit -a -m "{message}"')
+
         filepath = os.path.join(self.repo_uri, 'scratchfile')
         with open(filepath, 'w') as scratchfile:
             call_git('git add {0}'.format(filepath), self.repo_uri)
-            call_git(('git commit -a -m "initial commit"'), self.repo_uri)
+            call_git(git_commit.format(message="initial commit"), self.repo_uri)
 
             scratchfile.write('foo\n')
             scratchfile.flush()
-            call_git('git commit -a -m "adding foo"', self.repo_uri)
+            call_git(git_commit.format(message="adding foo"), self.repo_uri)
 
             scratchfile.write('bar\n')
             scratchfile.flush()
-            call_git('git commit -a -m "adding bar"', self.repo_uri)
+            call_git(git_commit.format(message="adding bar"), self.repo_uri)
 
             scratchfile.write('baz\n')
             scratchfile.flush()
-            call_git('git commit -a -m "adding baz"', self.repo_uri)
+            call_git(git_commit.format(message="adding baz"), self.repo_uri)
 
             if tag:
                 call_git('git tag 0.1', self.repo_uri)
 
             scratchfile.write('example\n')
             scratchfile.flush()
-            call_git('git commit -a -m "adding example"', self.repo_uri)
+            call_git(git_commit.format(message="adding example"), self.repo_uri)
 
         return versioning.GitRepo(self.repo_uri)
 
