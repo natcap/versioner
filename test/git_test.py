@@ -35,24 +35,28 @@ class GitTest(unittest.TestCase):
         call_git('git checkout -B master', self.repo_uri)
 
         filepath = os.path.join(self.repo_uri, 'scratchfile')
-        open(filepath, 'w')
-        call_git('git add {0}'.format(filepath), self.repo_uri)
-        call_git(('git commit -a -m "initial commit"'), self.repo_uri)
+        with open(filepath, 'w') as scratchfile:
+            call_git('git add {0}'.format(filepath), self.repo_uri)
+            call_git(('git commit -a -m "initial commit"'), self.repo_uri)
 
-        open(filepath, 'a').write('foo\n')
-        call_git('git commit -a -m "adding foo"', self.repo_uri)
+            scratchfile.write('foo\n')
+            scratchfile.flush()
+            call_git('git commit -a -m "adding foo"', self.repo_uri)
 
-        open(filepath, 'a').write('bar\n')
-        call_git('git commit -a -m "adding bar"', self.repo_uri)
+            scratchfile.write('bar\n')
+            scratchfile.flush()
+            call_git('git commit -a -m "adding bar"', self.repo_uri)
 
-        open(filepath, 'a').write('baz\n')
-        call_git('git commit -a -m "adding baz"', self.repo_uri)
+            scratchfile.write('baz\n')
+            scratchfile.flush()
+            call_git('git commit -a -m "adding baz"', self.repo_uri)
 
-        if tag:
-            call_git('git tag 0.1', self.repo_uri)
+            if tag:
+                call_git('git tag 0.1', self.repo_uri)
 
-        open(filepath, 'a').write('example\n')
-        call_git('git commit -a -m "adding example"', self.repo_uri)
+            scratchfile.write('example\n')
+            scratchfile.flush()
+            call_git('git commit -a -m "adding example"', self.repo_uri)
 
         return versioning.GitRepo(self.repo_uri)
 

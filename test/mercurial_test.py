@@ -34,19 +34,21 @@ class MercurialTest(unittest.TestCase):
             tempdir=self.repo_uri))
 
         filepath = os.path.join(self.repo_uri, 'scratchfile')
-        open(filepath, 'w')
-        call_hg('hg add {0} -R {1}'.format(filepath, self.repo_uri))
-        call_hg(('hg commit -m "initial commit" -R {0}').format(
-            filepath, self.repo_uri))
+        with open(filepath, 'a') as file_a:
+            call_hg('hg add {0} -R {1}'.format(filepath, self.repo_uri))
+            call_hg(('hg commit -m "initial commit" -R {0}').format(
+                filepath, self.repo_uri))
 
-        open(filepath, 'a').write('foo\n')
-        call_hg(('hg commit -m "adding foo" -R {0}').format(self.repo_uri))
+            file_a.write('foo\n')
+            file_a.flush()
+            call_hg(('hg commit -m "adding foo" -R {0}').format(self.repo_uri))
 
-        open(filepath, 'a').write('bar\n')
-        call_hg(('hg commit -m "adding bar" -R {0}').format(self.repo_uri))
+            file_a.write('bar\n')
+            file_a.flush()
+            call_hg(('hg commit -m "adding bar" -R {0}').format(self.repo_uri))
 
-        open(filepath, 'a').write('baz\n')
-        call_hg(('hg commit -m "adding baz" -R {0}').format(self.repo_uri))
+            file_a.write('baz\n')
+            call_hg(('hg commit -m "adding baz" -R {0}').format(self.repo_uri))
 
         call_hg(('hg tag 0.1 -R {tempdir}').format(tempdir=self.repo_uri))
 
@@ -100,12 +102,12 @@ class MercurialTest(unittest.TestCase):
         repo = versioning.HgRepo('.')
         self.assertEqual(repo.build_dev_id('foo'), 'devfoo')
 
-    def test_release_version_at_tag(self):
+    def test_version_at_tag(self):
         repo = self._set_up_sample_repo()
         call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
         self.assertEqual(repo.version, '0.1')
 
-    def test_release_version_not_at_tag(self):
+    def test_version_not_at_tag(self):
         repo = self._set_up_sample_repo()
         dev_id = repo.version
         matches = re.findall('dev1:0\.1 \[[0-9a-f]{8,12}\]', dev_id)
