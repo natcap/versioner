@@ -1,5 +1,10 @@
 .. :changelog:
 
+0.5.0
+=====
+* Added python 3.x support.
+* Added testing via bitbucket pipelines.
+
 0.4.2
 =====
 * Correcting an issue when using the ``natcap_version`` distutils keyword where
