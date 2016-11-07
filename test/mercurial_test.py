@@ -35,12 +35,12 @@ def call_hg(command):
 
 class MercurialTest(unittest.TestCase):
     def setUp(self):
-        """Set up ``self.repo_uri`` as a new temp folder."""
-        self.repo_uri = tempfile.mkdtemp()
+        """Set up ``self.repo_path`` as a new temp folder."""
+        self.repo_path = tempfile.mkdtemp()
 
     def tearDown(self):
-        """Remove the temp folder self.repo_uri."""
-        shutil.rmtree(self.repo_uri)
+        """Remove the temp folder self.repo_path."""
+        shutil.rmtree(self.repo_path)
 
     def _set_up_sample_repo(self):
         """Create a sample repo with four commits and a tag.
@@ -50,29 +50,29 @@ class MercurialTest(unittest.TestCase):
         from natcap.versioner import versioning
 
         call_hg('hg init {tempdir}'.format(
-            tempdir=self.repo_uri))
+            tempdir=self.repo_path))
 
-        filepath = os.path.join(self.repo_uri, 'scratchfile')
+        filepath = os.path.join(self.repo_path, 'scratchfile')
         with open(filepath, 'a') as file_a:
-            call_hg('hg add {0} -R {1}'.format(filepath, self.repo_uri))
+            call_hg('hg add {0} -R {1}'.format(filepath, self.repo_path))
             call_hg(('hg commit -m "initial commit" -R {0}').format(
-                     self.repo_uri))
+                     self.repo_path))
 
             file_a.write('foo\n')
             file_a.flush()
-            call_hg(('hg commit -m "adding foo" -R {0}').format(self.repo_uri))
+            call_hg(('hg commit -m "adding foo" -R {0}').format(self.repo_path))
 
             file_a.write('bar\n')
             file_a.flush()
-            call_hg(('hg commit -m "adding bar" -R {0}').format(self.repo_uri))
+            call_hg(('hg commit -m "adding bar" -R {0}').format(self.repo_path))
 
             file_a.write('baz\n')
             file_a.flush()
-            call_hg(('hg commit -m "adding baz" -R {0}').format(self.repo_uri))
+            call_hg(('hg commit -m "adding baz" -R {0}').format(self.repo_path))
 
-        call_hg(('hg tag 0.1 -R {tempdir}').format(tempdir=self.repo_uri))
+        call_hg(('hg tag 0.1 -R {tempdir}').format(tempdir=self.repo_path))
 
-        return versioning.HgRepo(self.repo_uri)
+        return versioning.HgRepo(self.repo_path)
 
     def test_tag_distance(self):
         """Versioner - Hg: check tag distance."""
@@ -115,7 +115,7 @@ class MercurialTest(unittest.TestCase):
     def test_release_version_at_tag(self):
         """Versioner - Hg: check release version at a tag."""
         repo = self._set_up_sample_repo()
-        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_path))
         self.assertEqual(repo.release_version, '0.1')
 
     def test_dev_id_default(self):
@@ -135,7 +135,7 @@ class MercurialTest(unittest.TestCase):
     def test_version_at_tag(self):
         """Versioner - Hg: check version at tag."""
         repo = self._set_up_sample_repo()
-        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_path))
         self.assertEqual(repo.version, '0.1')
 
     def test_version_not_at_tag(self):
@@ -149,7 +149,7 @@ class MercurialTest(unittest.TestCase):
     def test_pep440_at_tag(self):
         """Versioner - Hg: check PEP440 version at tag."""
         repo = self._set_up_sample_repo()
-        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_path))
         self.assertEqual(repo.pep440(), '0.1')
 
     def test_pep440_not_at_tag_no_branch_post(self):
@@ -190,8 +190,8 @@ class MercurialTest(unittest.TestCase):
         """Versioner - Hg: check default version if PEP440."""
         import natcap.versioner
         repo = self._set_up_sample_repo()
-        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_uri))
-        version = natcap.versioner.vcs_version(self.repo_uri)
+        call_hg('hg up -r 0.1 -R {repo}'.format(repo=self.repo_path))
+        version = natcap.versioner.vcs_version(self.repo_path)
         self.assertEqual(version, repo.pep440(branch=False))
 
     def test_vcs_version_subdir(self):
@@ -199,7 +199,7 @@ class MercurialTest(unittest.TestCase):
         import natcap.versioner
         repo = self._set_up_sample_repo()
 
-        dir_inside_repo = os.path.join(self.repo_uri, 'foo', 'bar')
+        dir_inside_repo = os.path.join(self.repo_path, 'foo', 'bar')
         os.makedirs(dir_inside_repo)
 
         version = natcap.versioner.vcs_version(dir_inside_repo)
@@ -210,11 +210,11 @@ class MercurialTest(unittest.TestCase):
         from natcap.versioner import versioning
         repo = self._set_up_sample_repo()
 
-        dir_inside_repo = os.path.join(self.repo_uri, 'foo', 'bar')
+        dir_inside_repo = os.path.join(self.repo_path, 'foo', 'bar')
         os.makedirs(dir_inside_repo)
 
         new_repo = versioning.HgRepo(dir_inside_repo)
-        self.assertEqual(new_repo._repo_path, self.repo_uri)
+        self.assertEqual(new_repo._repo_path, self.repo_path)
 
     def test_hg_get_version(self):
         """Versioner - Hg: check version OK from VCS."""
@@ -223,7 +223,7 @@ class MercurialTest(unittest.TestCase):
         self._set_up_sample_repo()
         # sys won't have a version attached to it that natcap.versioner
         # identifies.
-        natcap.versioner.get_version('sys', root=self.repo_uri,
+        natcap.versioner.get_version('sys', root=self.repo_path,
                                      allow_scm=natcap.versioner.SCM_ALLOW)
 
 
@@ -243,13 +243,13 @@ class MercurialArchiveTest(MercurialTest):
         if archive_rev is None:
             archive_rev = 'tip'
         call_hg('hg archive -R {repo} -r {rev} --type=zip archive.zip'.format(
-            repo=self.repo_uri, rev=archive_rev))
+            repo=self.repo_path, rev=archive_rev))
 
         archive = zipfile.ZipFile('archive.zip')
-        archive.extractall(path=self.repo_uri)
+        archive.extractall(path=self.repo_path)
         archive.close()
 
-        self.archive_path = os.path.join(self.repo_uri, 'archive')
+        self.archive_path = os.path.join(self.repo_path, 'archive')
         repo = versioning.HgArchive(self.archive_path)
         return repo
 
