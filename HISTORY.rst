@@ -2,7 +2,7 @@
 
 0.5.0
 =====
-* Added python 3.x support.
+* Added python 3.x support.  Installation now requires ``six``.
 * Added testing via bitbucket pipelines.
 
 0.4.2
