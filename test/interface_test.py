@@ -59,6 +59,7 @@ class GetVersionTest(unittest.TestCase):
                 del sys.modules[modname]
 
     def test_get_version_from_version_module(self):
+        """Versioner - Interface: Check version loaded from module."""
         import natcap.versioner
 
         pkgname = '_foo'
@@ -74,6 +75,7 @@ class GetVersionTest(unittest.TestCase):
             GetVersionTest.clean_fake_module(pkgname)
 
     def test_get_version_from_nonversion_module(self):
+        """Versioner - Interface: version loaded from arbitrary module."""
         import natcap.versioner
 
         pkgname = '_foo'
@@ -90,6 +92,7 @@ class GetVersionTest(unittest.TestCase):
             GetVersionTest.clean_fake_module(pkgname)
 
     def test_disallowed_scm(self):
+        """Versioner - Interface: version not loaded, even from SCM."""
         import natcap.versioner
         with self.assertRaises(natcap.versioner.VersionNotFound):
             # python sys module won't have the required version attribute,
@@ -98,6 +101,7 @@ class GetVersionTest(unittest.TestCase):
                 'sys', root='/', allow_scm=natcap.versioner.SCM_DISALLOW)
 
     def test_pyinstaller_frozen(self):
+        """Versioner - Interface: version not loaded from pyinstaller build."""
         import natcap.versioner
 
         if hasattr(sys, 'frozen'):
@@ -119,12 +123,15 @@ class GetVersionTest(unittest.TestCase):
 
 class PKGINFOTest(unittest.TestCase):
     def setUp(self):
+        """Set up test by setting ``self.workspace``."""
         self.workspace = tempfile.mkdtemp()
 
     def tearDown(self):
+        """Clean up after test by removing ``self.workspace``."""
         shutil.rmtree(self.workspace)
 
     def test_parse_version_exists(self):
+        """Versioner - PKGINFO: load version from PKGINFO."""
         import natcap.versioner
 
         pkginfo_file = os.path.join(self.workspace, 'PKG-INFO')
@@ -135,6 +142,7 @@ class PKGINFOTest(unittest.TestCase):
         self.assertEqual(version, '0.0.1')
 
     def test_parse_version_noexist(self):
+        """Versioner - PKGINFO: versioning fails when no PKGINFO."""
         import natcap.versioner
         with self.assertRaises(natcap.versioner.VersionNotFound):
             natcap.versioner.parse_version(root='/')
