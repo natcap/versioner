@@ -3,11 +3,10 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: debian:jessie
+image: jdouglass/versioner-test:latest
 pipelines:
   default:
     - step:
-        script: # Modify the commands below to build your repository.
-          - apt-get update && apt-get install -y git mercurial python python-pip python3 python3-pip python-nose python3-nose
+        script:
           - python setup.py test
           - python3 setup.py test
