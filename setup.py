@@ -24,6 +24,7 @@ setup(
     zip_safe=True,
     keywords='hg mercurial git versioning natcap',
     test_suite='nose.collector',
+    install_requires=['six'],
     classifiers=[
         'Intended Audience :: Developers',
         'Development Status :: 4 - Beta',
