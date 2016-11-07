@@ -214,8 +214,8 @@ class GitRepo(VCSQuerier):
     name = 'Git'
     repo_data_location = '.git'
 
-    def __init__(self, repo_uri):
-        VCSQuerier.__init__(self, repo_uri)
+    def __init__(self, repo_path):
+        VCSQuerier.__init__(self, repo_path)
         self._tag_distance = None
         self._latest_tag = None
         self._commit_hash = None
