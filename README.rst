@@ -1,10 +1,15 @@
+=========================================
 Consistent versioning for NatCap Projects
 =========================================
 
-This package provides a prescriptive, consistent versioning scheme for python
-projects.  This project is developed and maintained by the Natural Capital
-Project (http://naturalcapitalproject.org) primarily for our projects, but
-anyone is welcome to use it!
+This package provides a consistent versioning scheme for projects of the
+Natural Capital Project (http://naturalcapitalproject.org).  The versioning
+string currently provided is PEP440-compliant, and is supported for both git
+and mercurial repositories.  Mercurial source archives (created by the
+``hg archive`` command) are also supported.
+
+.. contents::
+    :local:
 
 Versioning Scheme
 =================
@@ -57,21 +62,23 @@ Installation
 Dependencies
 ============
 
-To install dependencies: ::
-
-     pip install setuptools six
+Note that ``natcap.versioner`` requires setuptools and ``six``.
 
 
 Usage In Your Project
 =====================
 
-To use this project, you'll need to edit two files: ``setup.py`` and ``__init__.py``.
+To use this project, you'll need to edit two files within your own project:
+``setup.py`` and ``__init__.py``.
 
 
-**In your ``setup.py``**
+Usage in setup.py
+-----------------
 
 Adding these lines to your ``setup.py`` allows the DVCS information to be
 fetched from ``git`` or ``hg`` and recorded in the package metadata.
+Additionally, the version will be recorded to the file you indicate with
+the ``natcap_version`` keyword.
 
 ::
 
@@ -81,10 +88,12 @@ fetched from ``git`` or ``hg`` and recorded in the package metadata.
         name='example_project',
         ...
         natcap_version='example_project/version.py',
+        setup_requires=['natcap.versioner>=0.4.2']
     )
 
 
-**In your package's ``__init__.py``** 
+Usage in __init__.py
+--------------------
 
 Adding these lines to your package's ``__init__.py`` file will allow the package
 version to be fetched from the package metadata.
@@ -102,11 +111,18 @@ If something doesn't work, it's probably broken!
 Please submit an issue via the issue tracker, send James an email
 or stop by if you're in the office and I'll try to fix it!
 
+You can also file an issue in our `issue tracker <https://bitbucket.org/jdouglass/versioner/issues>`_.
+
 Tests
 =====
 
 To run the suite of tests: ::
 
-    $ python setup.py nosetests
+    $ nosetests test/*.py
 
 Note that ``hg`` and ``git`` must be available as executables on the command-line.
+
+Development
+===========
+
+The ``natcap.versioner`` source tree is located at https://bitbucket.org/jdouglass/versioner
