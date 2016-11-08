@@ -1,8 +1,10 @@
 Consistent versioning for NatCap Projects
 =========================================
 
-This package provides a consistent versioning scheme for projects of the
-Natural Capital Project (http://naturalcapitalproject.org).
+This package provides a prescriptive, consistent versioning scheme for python
+projects.  This project is developed and maintained by the Natural Capital
+Project (http://naturalcapitalproject.org) primarily for our projects, but
+anyone is welcome to use it!
 
 Versioning Scheme
 =================
@@ -55,9 +57,9 @@ Installation
 Dependencies
 ============
 
-To install dependency: ::
+To install dependencies: ::
 
-     pip install setuptools
+     pip install setuptools six
 
 
 Usage In Your Project
@@ -74,12 +76,10 @@ fetched from ``git`` or ``hg`` and recorded in the package metadata.
 ::
 
     from setuptools import setup
-    import natcap.versioner
 
     setup(
         name='example_project',
         ...
-        version=natcap.versioner.parse_version()
         natcap_version='example_project/version.py',
     )
 

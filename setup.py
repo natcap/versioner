@@ -5,7 +5,7 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='natcap.versioner',
-    description="Git and hg versioning for natcap projects",
+    description="PEP440-compliant Git and hg versioning",
     long_description=readme + '\n\n' + history,
     maintainer='James Douglass',
     maintainer_email='jdouglass@stanford.edu',
